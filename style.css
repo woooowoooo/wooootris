@@ -1,0 +1,56 @@
+* {
+	box-sizing: border-box;
+}
+:root {
+	color-scheme: light dark;
+	--primary-color: blanchedalmond;
+	--secondary-color: hsl(30, 25%, 15%);
+	--text-color: hsl(30, 25%, 15%);
+	--accent-color: orangered;
+	--font-stack: Futura, Avenir, "Century Gothic", "URW Gothic", sans-serif;
+}
+body {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	height: 100vh;
+	margin: 0;
+	background-color: var(--secondary-color);
+	color: var(--text-color);
+	font: 18px var(--font-stack);
+}
+header {
+	width: 100%;
+	padding: 20px;
+	background-color: var(--primary-color);
+	text-align: center;
+	line-height: 1.25;
+}
+header h1, header p {
+	color: var(--text-color);
+}
+canvas {
+	min-height: 0;
+	max-width: 100vw;
+}
+a {
+	color: var(--accent-color);
+	font-weight: bold;
+	text-decoration: none;
+}
+p {
+	margin: 0.5em 0;
+}
+@font-face { 
+	font-family: "Commodore 64";
+	src: url("fonts/commodore64.woff2") format("woff2"),
+	url("fonts/commodore64.woff") format("woff");
+}
+@media (prefers-color-scheme: dark) {
+	:root {
+		--primary-color: hsl(30, 15%, 25%);
+		--secondary-color: hsl(30, 30%, 10%);
+		--text-color: linen;
+		--accent-color: gold;
+	}
+}
