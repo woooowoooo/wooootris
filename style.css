@@ -3,9 +3,9 @@
 }
 :root {
 	color-scheme: light dark;
-	--primary-color: blanchedalmond;
-	--secondary-color: hsl(30, 25%, 15%);
-	--text-color: hsl(30, 25%, 15%);
+	--primary-color: seashell;
+	--secondary-color: hsl(30, 5%, 15%);
+	--text-color: hsl(30, 5%, 15%);
 	--accent-color: orangered;
 	--font-stack: Futura, Avenir, "Century Gothic", "URW Gothic", sans-serif;
 }
@@ -21,12 +21,10 @@ body {
 }
 header {
 	width: 100%;
-	padding: 20px;
+	padding: 10px 0 15px;
 	background-color: var(--primary-color);
 	text-align: center;
-	line-height: 1.25;
-}
-header h1, header p {
+	line-height: 1;
 	color: var(--text-color);
 }
 canvas {
@@ -41,15 +39,15 @@ a {
 p {
 	margin: 0.5em 0;
 }
-@font-face { 
+@font-face {
 	font-family: "Commodore 64";
 	src: url("fonts/commodore64.woff2") format("woff2"),
 	url("fonts/commodore64.woff") format("woff");
 }
 @media (prefers-color-scheme: dark) {
 	:root {
-		--primary-color: hsl(30, 15%, 25%);
-		--secondary-color: hsl(30, 30%, 10%);
+		--primary-color: hsl(30, 5%, 25%);
+		--secondary-color: hsl(30, 10%, 10%);
 		--text-color: linen;
 		--accent-color: gold;
 	}
