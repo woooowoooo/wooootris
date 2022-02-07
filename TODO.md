@@ -3,19 +3,19 @@
 	- [x] Hidden rows at top
 - [ ] Pieces
 	- [x] 7bag
-	- [ ] Upcoming pieces
+	- [x] Upcoming pieces
 	- [ ] Hold piece (C)
 	- [ ] Ghost piece
 - [x] Gravity
 	- [x] Collision detection
 	- [x] Reduce frame speed
 - [x] Moving pieces (Left, Right)
-	- [ ] Locking
+	- [x] Locking
 - [ ] Super Rotation System
-	- [ ] Rotation (Z: counter, X: clockwise, A/Shift: 180)
+	- [ ] Rotation (Z: counter, X/Up: clockwise, A/Shift: 180)
 	- [ ] Kicks
 - [ ] Drops
-	- [ ] Hard (Space/Up)
+	- [ ] Hard (Space)
 	- [x] Soft (Down)
 - [ ] Death
 	- [x] Retry (R)

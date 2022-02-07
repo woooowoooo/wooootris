@@ -75,9 +75,11 @@ function updateTetronimo(newPosition) {
 	}
 }
 function gravity() {
-	if (!current.blocks.some(block => block + COLS > (CELL_AMOUNT - 1) || collisionCheck(block + COLS))) {
+	const canFall = !current.blocks.some(block => block + COLS > (CELL_AMOUNT - 1) || collisionCheck(block + COLS));
+	if (canFall) {
 		updateTetronimo(current.blocks.map(block => block + COLS));
 	}
+	return canFall;
 }
 // Game loop
 let changed = false;
@@ -101,7 +103,14 @@ export function handle(keys) {
 }
 export function update() {
 	if (subFrame === 0) {
-		gravity();
+		const fell = gravity();
+		if (!fell) {
+			// TODO: Clear lines
+			current = newTetronimo(queue.shift());
+			if (queue.length < NEXT_AMOUNT) {
+				queue.push(...newBag());
+			}
+		}
 		changed = true;
 	}
 	subFrame++;
