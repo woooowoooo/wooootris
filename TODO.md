@@ -2,7 +2,7 @@
 - [x] Grid
 	- [x] Hidden rows at top
 - [ ] Pieces
-	- [ ] 7bag
+	- [x] 7bag
 	- [ ] Upcoming pieces
 	- [ ] Hold piece (C)
 	- [ ] Ghost piece

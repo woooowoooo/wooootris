@@ -8,23 +8,51 @@ const colors = {
 	"J": "hsl(230, 70%, 50%)",
 	"T": "hsl(300, 90%, 50%)"
 };
+const startingBlocks = {
+	"I": [3, 4, 5, 6],
+	"O": [4, 5, 14, 15],
+	"T": [4, 13, 14, 15],
+	"S": [4, 5, 13, 14],
+	"Z": [3, 4, 14, 15],
+	"J": [3, 13, 14, 15],
+	"L": [5, 13, 14, 15]
+};
 const CELL_SIZE = 60;
 const CELL_AMOUNT = 220;
 const START_X = 960 - 5 * CELL_SIZE;
 const START_Y = 640 - 10 * CELL_SIZE;
 const SPEED = 60; // Animation frames per Tetris frame
 // State variables
-let cells = Array(200).fill(" ");
-cells[4] = "O";
-cells[5] = "O";
-cells[14] = "O";
-cells[15] = "O";
-let tick = 0;
-let current = {
-	type: "O",
-	blocks: [4, 5, 14, 15]
+let cells = Array(CELL_AMOUNT).fill(" ");
+let subFrame = 1; // Starts at 1 so the tetronimo doesn't immediately fall
+let queue = Array(7);
+let current = { // Will be filled in by newTetronimo()
+	type: "",
+	blocks: []
 };
-// Functions
+// New game
+function newBag() {
+	const bag = ["I", "O", "T", "S", "Z", "J", "L"];
+	for (let i = 0; i < 7; i++) {
+		const j = Math.floor(Math.random() * 7);
+		[bag[i], bag[j]] = [bag[j], bag[i]];
+	}
+	return bag;
+}
+function newTetronimo(type) {
+	const newCurrent = {type, blocks: startingBlocks[type]};
+	for (const block of newCurrent.blocks) {
+		cells[block] = newCurrent.type;
+	}
+	return newCurrent;
+}
+export function newGame() {
+	cells = Array(CELL_AMOUNT).fill(" ");
+	subFrame = 1;
+	queue = newBag();
+	current = newTetronimo(queue.shift());
+}
+// Game
 function collisionCheck(cell) {
 	return cells[cell] !== " " && !current.blocks.includes(cell);
 }
@@ -37,18 +65,6 @@ function updateTetronimo(newPosition) {
 	for (const block of current.blocks) {
 		cells[block] = current.type;
 	}
-}
-export function newGame() {
-	cells = Array(200).fill(" ");
-	cells[4] = "O";
-	cells[5] = "O";
-	cells[14] = "O";
-	cells[15] = "O";
-	tick = 0;
-	current = {
-		type: "O",
-		blocks: [4, 5, 14, 15]
-	};
 }
 function gravity() {
 	if (!current.blocks.some(block => block + 10 > (CELL_AMOUNT - 1) || collisionCheck(block + 10))) {
