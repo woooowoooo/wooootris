@@ -8,6 +8,11 @@ const colors = {
 	"J": "hsl(230, 70%, 50%)",
 	"T": "hsl(300, 90%, 50%)"
 };
+const CELL_SIZE = 60;
+const CELL_AMOUNT = 220;
+const START_X = 960 - 5 * CELL_SIZE;
+const START_Y = 640 - 10 * CELL_SIZE;
+const SPEED = 60; // Animation frames per Tetris frame
 // State variables
 let cells = Array(200).fill(" ");
 cells[4] = "O";
@@ -45,21 +50,27 @@ export function newGame() {
 		blocks: [4, 5, 14, 15]
 	};
 }
+function gravity() {
+	if (!current.blocks.some(block => block + 10 > (CELL_AMOUNT - 1) || collisionCheck(block + 10))) {
+		updateTetronimo(current.blocks.map(block => block + 10));
+	}
+}
 export function update(context) {
 	context.fillStyle = "hsl(30, 5%, 20%)";
-	context.fillRect(660, 40, 600, 1200);
+	context.fillRect(START_X, START_Y, 10 * CELL_SIZE, 20 * CELL_SIZE);
 	// Update
-	if (!current.blocks.some(block => block + 10 > 199 || collisionCheck(block + 10))) {
-		updateTetronimo(current.blocks.map(block => block + 10));
+	if (subFrame === 0) {
+		gravity();
 	}
 	// Render
 	for (const [position, cell] of cells.entries()) {
 		if (cell !== " ") {
 			context.fillStyle = colors[cell];
-			context.fillRect(660 + (position % 10) * 60, 40 + Math.floor(position / 10) * 60, 60, 60);
+			context.fillRect(START_X + (position % 10) * CELL_SIZE, START_Y + Math.floor(position / 10 - 2) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 		}
 	}
-	tick++;
+	subFrame++;
+	subFrame %= SPEED;
 }
 export function handle(keys) {
 	for (const key of keys) {
@@ -70,9 +81,8 @@ export function handle(keys) {
 			updateTetronimo(current.blocks.map(block => block - 1));
 		} else if (key === "ArrowRight" && !current.blocks.some(block => (block + 1) % 10 === 0 || collisionCheck(block + 1))) {
 			updateTetronimo(current.blocks.map(block => block + 1));
-		} else if (key === "ArrowDown" && !current.blocks.some(block => block + 10 > 199 || collisionCheck(block + 10))) {
-			// Repeat of lines 52-54
-			updateTetronimo(current.blocks.map(block => block + 10));
+		} else if (key === "ArrowDown") {
+			gravity();
 		}
 		// TODO: Rotation
 	}

@@ -1,6 +1,6 @@
 # Gameplay
 - [x] Grid
-	- [ ] Hidden rows at top
+	- [x] Hidden rows at top
 - [ ] Pieces
 	- [ ] 7bag
 	- [ ] Upcoming pieces
@@ -8,7 +8,7 @@
 	- [ ] Ghost piece
 - [x] Gravity
 	- [x] Collision detection
-	- [ ] Reduce frame speed
+	- [x] Reduce frame speed
 - [x] Moving pieces (Left, Right)
 	- [ ] Locking
 - [ ] Super Rotation System
