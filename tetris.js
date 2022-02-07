@@ -1,4 +1,4 @@
-const cells = Array(200).fill(" ");
+// Constants
 const colors = {
 	"Z": "hsl(0, 70%, 50%)",
 	"L": "hsl(30, 90%, 50%)",
@@ -8,11 +8,13 @@ const colors = {
 	"J": "hsl(230, 70%, 50%)",
 	"T": "hsl(300, 90%, 50%)"
 };
-let tick = 0;
+// State variables
+let cells = Array(200).fill(" ");
 cells[4] = "O";
 cells[5] = "O";
 cells[14] = "O";
 cells[15] = "O";
+let tick = 0;
 let current = {
 	type: "O",
 	blocks: [4, 5, 14, 15]
@@ -31,6 +33,17 @@ function updateTetronimo(newPosition) {
 		cells[block] = current.type;
 	}
 }
+export function newGame() {
+	cells = Array(200).fill(" ");
+	cells[4] = "O";
+	cells[5] = "O";
+	cells[14] = "O";
+	cells[15] = "O";
+	tick = 0;
+	current = {
+		type: "O",
+		blocks: [4, 5, 14, 15]
+	};
 }
 export function update(context) {
 	context.fillStyle = "hsl(30, 5%, 20%)";
@@ -50,7 +63,10 @@ export function update(context) {
 }
 export function handle(keys) {
 	for (const key of keys) {
-		if (key === "ArrowLeft" && !current.blocks.some(block => (block - 1) % 10 === 9 || collisionCheck(block - 1))) {
+		if (key === "r" || key === "R") {
+			newGame();
+			return;
+		} else if (key === "ArrowLeft" && !current.blocks.some(block => (block - 1) % 10 === 9 || collisionCheck(block - 1))) {
 			updateTetronimo(current.blocks.map(block => block - 1));
 		} else if (key === "ArrowRight" && !current.blocks.some(block => (block + 1) % 10 === 0 || collisionCheck(block + 1))) {
 			updateTetronimo(current.blocks.map(block => block + 1));

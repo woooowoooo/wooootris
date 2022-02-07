@@ -1,5 +1,5 @@
 import StateMachine from "./state-machine/module.js";
-import {handle, update} from "./tetris.js";
+import {handle, update, newGame} from "./tetris.js";
 const canvas = document.getElementById("game");
 canvas.width = 1920;
 canvas.height = 1280;
@@ -159,13 +159,13 @@ const stateMachine = new StateMachine({
 			to: "credits"
 		},
 		{
-			name: "pause",
+			name: "lose",
 			from: "main",
-			to: "paused"
+			to: "gameOver"
 		},
 		{
-			name: "unpause",
-			from: "paused",
+			name: "retry",
+			from: "gameOver",
 			to: "main"
 		}
 	],
@@ -213,6 +213,7 @@ const stateMachine = new StateMachine({
 		},
 		onMain() {
 			clear();
+			newGame();
 			objects.set("background", new Drawable(() => context.drawImage(images.main, 0, 0, 1920, 1280)));
 			objects.set(muted ? "unmute" : "mute", new MuteButton());
 			objects.set("tetris", new Drawable(() => {
@@ -220,7 +221,7 @@ const stateMachine = new StateMachine({
 			}));
 			requestAnimationFrame(loop);
 		},
-		onPaused() {
+		onGameOver() {
 			paused = true;
 			for (const sound of Object.values(sounds).filter(sound => !sound.paused)) {
 				sound.pause();
@@ -230,12 +231,12 @@ const stateMachine = new StateMachine({
 				context.fillRect(0, 0, 1920, 1280);
 				setFontSize(16);
 				context.fillStyle = "white";
-				context.fillText("PAUSED", 960, 400);
+				context.fillText("GAME OVER", 960, 400);
 			}));
 			objects.set("menu", new TextButton(672, 880, "Menu", stateMachine.toMenu, 480, true));
-			objects.set("return", new TextButton(1248, 880, "Return", stateMachine.unpause, 480, true));
+			objects.set("retry", new TextButton(1248, 880, "Retry", stateMachine.retry, 480, true));
 		},
-		onLeavePaused() {
+		onLeaveGameOver() {
 			paused = false;
 			for (const sound of Object.values(sounds).filter(sound => sound.paused)) {
 				sound.play();
@@ -251,8 +252,8 @@ function loop() {
 	handle(keysPressed);
 	render();
 	// Handle inputs
-	if (keysPressed.has("p") || keysPressed.has("P") || keysPressed.has("Escape")) {
-		stateMachine.pause();
+	if (keysPressed.has("Escape")) {
+		stateMachine.lose();
 	}
 	requestAnimationFrame(loop);
 }

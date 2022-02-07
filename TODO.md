@@ -18,7 +18,7 @@
 	- [ ] Hard (Space/Up)
 	- [x] Soft (Down)
 - [ ] Death
-	- [ ] Retry (R)
+	- [x] Retry (R)
 - [ ] Modes
 	- [ ] 40 lines (sprint)
 	- [ ] Regular
