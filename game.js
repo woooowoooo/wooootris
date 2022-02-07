@@ -100,7 +100,7 @@ class TextButton extends Button {
 			context.drawImage(images.buttonMiddle, x - buttonWidth / 2, y, buttonWidth, 128);
 			context.drawImage(images.buttonEnd, x + buttonWidth / 2, y, 80, 128);
 			context.textAlign = "center";
-			context.fillStyle = "rgb(0, 0, 0)";
+			context.fillStyle = "black";
 			context.fillText(text, x, y + 92);
 		}
 		super(hitbox, draw, callback, ignorePause);
@@ -174,12 +174,11 @@ const stateMachine = new StateMachine({
 		},
 		async onBoot() {
 			// Loading screen
-			context.rect(0, 0, 1920, 1280);
-			context.fillStyle = "rgb(0, 0, 0)";
-			context.fill();
+			context.fillStyle = "black";
+			context.fillRect(0, 0, 1920, 1280);
 			context.textAlign = "center";
 			setFontSize(16);
-			context.fillStyle = "rgb(255, 255, 255)";
+			context.fillStyle = "white";
 			context.fillText("LOADING", 960, 400);
 			setFontSize(8);
 			context.fillText("If this doesn't go away,", 960, 800);
@@ -188,11 +187,10 @@ const stateMachine = new StateMachine({
 			console.log("Resources loaded.", images, sounds);
 			// Prompt for user interaction so autoplay won't get blocked
 			clear();
-			context.rect(0, 0, 1920, 1280);
-			context.fillStyle = "rgb(0, 0, 0)";
-			context.fill();
+			context.fillStyle = "black";
+			context.fillRect(0, 0, 1920, 1280);
 			setFontSize(8);
-			context.fillStyle = "rgb(255, 255, 255)";
+			context.fillStyle = "white";
 			context.fillText("Loading finished.", 960, 400);
 			context.fillText("CLICK ANYWHERE", 960, 800);
 			context.fillText("TO CONTINUE", 960, 960);
@@ -216,6 +214,10 @@ const stateMachine = new StateMachine({
 			clear();
 			objects.set("background", new Drawable(() => context.drawImage(images.main, 0, 0, 1920, 1280)));
 			objects.set(muted ? "unmute" : "mute", new MuteButton());
+			objects.set("tetris", new Drawable(() => {
+				context.fillStyle = "hsl(30, 5%, 20%)";
+				context.fillRect(660, 40, 600, 1200);
+			}));
 			requestAnimationFrame(loop);
 		},
 		onPaused() {
@@ -224,11 +226,10 @@ const stateMachine = new StateMachine({
 				sound.pause();
 			}
 			objects.set("paused", new Drawable(() => {
-				context.rect(0, 0, 1920, 1280);
 				context.fillStyle = "rgba(0, 0, 0, 0.5)";
-				context.fill();
+				context.fillRect(0, 0, 1920, 1280);
 				setFontSize(16);
-				context.fillStyle = "rgb(255, 255, 255)";
+				context.fillStyle = "white";
 				context.fillText("PAUSED", 960, 400);
 			}));
 			objects.set("menu", new TextButton(672, 880, "Menu", stateMachine.toMenu, 480, true));
