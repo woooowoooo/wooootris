@@ -19,9 +19,13 @@ const startingBlocks = {
 };
 const CELL_SIZE = 60;
 const CELL_AMOUNT = 220;
-const START_X = 960 - 5 * CELL_SIZE;
-const START_Y = 640 - 10 * CELL_SIZE;
+const START_X = (1920 - 10 * CELL_SIZE) / 2;
+const START_Y = (1280 - 20 * CELL_SIZE) / 2;
 const SPEED = 60; // Animation frames per Tetris frame
+const NEXT_AMOUNT = 6;
+const QUEUE_GAP = 200;
+const QUEUE_START_X = START_X + 10 * CELL_SIZE + 150;
+const QUEUE_START_Y = (1280 - (NEXT_AMOUNT - 1) * QUEUE_GAP - 2 * CELL_SIZE) / 2;
 // State variables
 let cells = Array(CELL_AMOUNT).fill(" ");
 let subFrame = 1; // Starts at 1 so the tetronimo doesn't immediately fall
@@ -107,6 +111,12 @@ export function render(context) {
 		if (cell !== " ") {
 			context.fillStyle = colors[cell];
 			context.fillRect(START_X + (position % 10) * CELL_SIZE, START_Y + Math.floor(position / 10 - 2) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+		}
+	}
+	for (const [position, tetromino] of queue.entries()) {
+		context.fillStyle = colors[tetromino];
+		for (const block of startingBlocks[tetromino]) {
+			context.fillRect(QUEUE_START_X + (block % 10 - 3) * CELL_SIZE, QUEUE_START_Y + QUEUE_GAP * position + Math.floor(block / 10) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 		}
 	}
 }
