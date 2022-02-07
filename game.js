@@ -1,4 +1,5 @@
 import StateMachine from "./state-machine/module.js";
+import update from "./tetris.js";
 const canvas = document.getElementById("game");
 canvas.width = 1920;
 canvas.height = 1280;
@@ -215,8 +216,7 @@ const stateMachine = new StateMachine({
 			objects.set("background", new Drawable(() => context.drawImage(images.main, 0, 0, 1920, 1280)));
 			objects.set(muted ? "unmute" : "mute", new MuteButton());
 			objects.set("tetris", new Drawable(() => {
-				context.fillStyle = "hsl(30, 5%, 20%)";
-				context.fillRect(660, 40, 600, 1200);
+				update(context);
 			}));
 			requestAnimationFrame(loop);
 		},
