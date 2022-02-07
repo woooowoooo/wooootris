@@ -255,7 +255,11 @@ function loop() {
 		handle(keysPressed);
 	}
 	// Update game state
-	if (update()) { // If board has updated
+	const [gameOver, changed] = update();
+	if (gameOver) {
+		stateMachine.lose();
+	}
+	if (changed) { // If board has updated
 		render();
 	}
 	requestAnimationFrame(loop);

@@ -38,6 +38,7 @@ let current = { // Will be filled in by newTetronimo()
 	type: "",
 	blocks: []
 };
+let changed = false;
 // New game
 function newBag() {
 	const bag = ["I", "O", "T", "S", "Z", "J", "L"];
@@ -81,8 +82,24 @@ function gravity() {
 	}
 	return canFall;
 }
+function lock() { // Returns whether the game is over
+	const rows = new Set(current.blocks.map(block => Math.floor(block / COLS)));
+	if (rows.has(1)) {
+		return true;
+	}
+	for (const row of rows) {
+		if (cells.slice(row * COLS, (row + 1) * COLS).every(cell => cell !== " ")) {
+			cells.splice(row * COLS, COLS);
+			cells.unshift(...Array(COLS).fill(" "));
+		}
+	}
+	current = newTetronimo(queue.shift());
+	if (queue.length < NEXT_AMOUNT) {
+		queue.push(...newBag());
+	}
+	return false;
+}
 // Game loop
-let changed = false;
 export function handle(keys) {
 	changed = true; // Set to false later if applicable
 	for (const key of keys) {
@@ -103,24 +120,15 @@ export function handle(keys) {
 }
 export function update() {
 	if (subFrame === 0) {
-		const fell = gravity();
-		if (!fell) {
-			for (const row of new Set(current.blocks.map(block => Math.floor(block / COLS)))) {
-				if (cells.slice(row * COLS, (row + 1) * COLS).every(cell => cell !== " ")) {
-					cells.splice(row * COLS, COLS);
-					cells.unshift(...Array(COLS).fill(" "));
-				}
-			}
-			current = newTetronimo(queue.shift());
-			if (queue.length < NEXT_AMOUNT) {
-				queue.push(...newBag());
-			}
+		if (!gravity() && lock()) {
+			// If the tetronimo can't fall and can't lock, game over
+			return [true, true];
 		}
 		changed = true;
 	}
 	subFrame++;
 	subFrame %= SPEED;
-	return changed;
+	return [false, changed];
 }
 export function render(context) {
 	context.fillStyle = "hsl(30, 5%, 20%)";
