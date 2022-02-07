@@ -1,5 +1,5 @@
 import StateMachine from "./state-machine/module.js";
-import {handle, update, newGame} from "./tetris.js";
+import {handle, update, render as tetrisRender, newGame} from "./tetris.js";
 const canvas = document.getElementById("game");
 canvas.width = 1920;
 canvas.height = 1280;
@@ -216,9 +216,7 @@ const stateMachine = new StateMachine({
 			newGame();
 			objects.set("background", new Drawable(() => context.drawImage(images.main, 0, 0, 1920, 1280)));
 			objects.set(muted ? "unmute" : "mute", new MuteButton());
-			objects.set("tetris", new Drawable(() => {
-				update(context);
-			}));
+			objects.set("tetris", new Drawable(() => tetrisRender(context)));
 			requestAnimationFrame(loop);
 		},
 		onGameOver() {
@@ -249,11 +247,16 @@ function loop() {
 	if (!stateMachine.is("main")) {
 		return;
 	}
-	handle(keysPressed);
-	render();
 	// Handle inputs
 	if (keysPressed.has("Escape")) {
 		stateMachine.lose();
+	}
+	if (keysPressed.size) {
+		handle(keysPressed);
+	}
+	// Update game state
+	if (update()) { // If board has updated
+		render();
 	}
 	requestAnimationFrame(loop);
 }

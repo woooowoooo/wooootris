@@ -52,7 +52,7 @@ export function newGame() {
 	queue = newBag();
 	current = newTetronimo(queue.shift());
 }
-// Game
+// Helper functions
 function collisionCheck(cell) {
 	return cells[cell] !== " " && !current.blocks.includes(cell);
 }
@@ -71,24 +71,10 @@ function gravity() {
 		updateTetronimo(current.blocks.map(block => block + 10));
 	}
 }
-export function update(context) {
-	context.fillStyle = "hsl(30, 5%, 20%)";
-	context.fillRect(START_X, START_Y, 10 * CELL_SIZE, 20 * CELL_SIZE);
-	// Update
-	if (subFrame === 0) {
-		gravity();
-	}
-	// Render
-	for (const [position, cell] of cells.entries()) {
-		if (cell !== " ") {
-			context.fillStyle = colors[cell];
-			context.fillRect(START_X + (position % 10) * CELL_SIZE, START_Y + Math.floor(position / 10 - 2) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-		}
-	}
-	subFrame++;
-	subFrame %= SPEED;
-}
+// Game loop
+let changed = false;
 export function handle(keys) {
+	changed = true; // Set to false later if applicable
 	for (const key of keys) {
 		if (key === "r" || key === "R") {
 			newGame();
@@ -99,7 +85,28 @@ export function handle(keys) {
 			updateTetronimo(current.blocks.map(block => block + 1));
 		} else if (key === "ArrowDown") {
 			gravity();
+		} else {
+			changed = false;
 		}
 		// TODO: Rotation
+	}
+}
+export function update() {
+	if (subFrame === 0) {
+		gravity();
+		changed = true;
+	}
+	subFrame++;
+	subFrame %= SPEED;
+	return changed;
+}
+export function render(context) {
+	context.fillStyle = "hsl(30, 5%, 20%)";
+	context.fillRect(START_X, START_Y, 10 * CELL_SIZE, 20 * CELL_SIZE);
+	for (const [position, cell] of cells.entries()) {
+		if (cell !== " ") {
+			context.fillStyle = colors[cell];
+			context.fillRect(START_X + (position % 10) * CELL_SIZE, START_Y + Math.floor(position / 10 - 2) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+		}
 	}
 }
