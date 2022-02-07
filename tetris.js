@@ -1,5 +1,17 @@
 // Constants
-const colors = {
+const COLS = 10;
+const ROWS = 20;
+const MID = Math.floor((COLS - 1) / 2);
+const STARTING_BLOCKS = { // How much generalization is too much?
+	"I": [MID - 1, MID, MID + 1, MID + 2],
+	"O": [MID, MID + 1, COLS + MID, COLS + MID + 1],
+	"T": [MID, COLS + MID - 1, COLS + MID, COLS + MID + 1],
+	"S": [MID, MID + 1, COLS + MID - 1, COLS + MID],
+	"Z": [MID - 1, MID, COLS + MID, COLS + MID + 1],
+	"J": [MID - 1, COLS + MID - 1, COLS + MID, COLS + MID + 1],
+	"L": [MID + 1, COLS + MID - 1, COLS + MID, COLS + MID + 1]
+};
+const COLORS = {
 	"Z": "hsl(0, 70%, 50%)",
 	"L": "hsl(30, 90%, 50%)",
 	"O": "hsl(50, 90%, 50%)",
@@ -8,23 +20,15 @@ const colors = {
 	"J": "hsl(230, 70%, 50%)",
 	"T": "hsl(300, 90%, 50%)"
 };
-const startingBlocks = {
-	"I": [3, 4, 5, 6],
-	"O": [4, 5, 14, 15],
-	"T": [4, 13, 14, 15],
-	"S": [4, 5, 13, 14],
-	"Z": [3, 4, 14, 15],
-	"J": [3, 13, 14, 15],
-	"L": [5, 13, 14, 15]
-};
-const CELL_SIZE = 60;
-const CELL_AMOUNT = 220;
-const START_X = (1920 - 10 * CELL_SIZE) / 2;
-const START_Y = (1280 - 20 * CELL_SIZE) / 2;
 const SPEED = 60; // Animation frames per Tetris frame
+// Position constants
+const CELL_SIZE = 60;
+const CELL_AMOUNT = COLS * (ROWS + 2);
+const START_X = (1920 - COLS * CELL_SIZE) / 2;
+const START_Y = (1280 - ROWS * CELL_SIZE) / 2;
 const NEXT_AMOUNT = 6;
 const QUEUE_GAP = 200;
-const QUEUE_START_X = START_X + 10 * CELL_SIZE + 150;
+const QUEUE_START_X = START_X + COLS * CELL_SIZE + 150;
 const QUEUE_START_Y = (1280 - (NEXT_AMOUNT - 1) * QUEUE_GAP - 2 * CELL_SIZE) / 2;
 // State variables
 let cells = Array(CELL_AMOUNT).fill(" ");
@@ -44,7 +48,7 @@ function newBag() {
 	return bag;
 }
 function newTetronimo(type) {
-	const newCurrent = {type, blocks: startingBlocks[type]};
+	const newCurrent = {type, blocks: STARTING_BLOCKS[type]};
 	for (const block of newCurrent.blocks) {
 		cells[block] = newCurrent.type;
 	}
@@ -71,8 +75,8 @@ function updateTetronimo(newPosition) {
 	}
 }
 function gravity() {
-	if (!current.blocks.some(block => block + 10 > (CELL_AMOUNT - 1) || collisionCheck(block + 10))) {
-		updateTetronimo(current.blocks.map(block => block + 10));
+	if (!current.blocks.some(block => block + COLS > (CELL_AMOUNT - 1) || collisionCheck(block + COLS))) {
+		updateTetronimo(current.blocks.map(block => block + COLS));
 	}
 }
 // Game loop
@@ -83,9 +87,9 @@ export function handle(keys) {
 		if (key === "r" || key === "R") {
 			newGame();
 			return;
-		} else if (key === "ArrowLeft" && !current.blocks.some(block => (block - 1) % 10 === 9 || collisionCheck(block - 1))) {
+		} else if (key === "ArrowLeft" && !current.blocks.some(block => (block - 1) % COLS === COLS - 1 || collisionCheck(block - 1))) {
 			updateTetronimo(current.blocks.map(block => block - 1));
-		} else if (key === "ArrowRight" && !current.blocks.some(block => (block + 1) % 10 === 0 || collisionCheck(block + 1))) {
+		} else if (key === "ArrowRight" && !current.blocks.some(block => (block + 1) % COLS === 0 || collisionCheck(block + 1))) {
 			updateTetronimo(current.blocks.map(block => block + 1));
 		} else if (key === "ArrowDown") {
 			gravity();
@@ -106,17 +110,17 @@ export function update() {
 }
 export function render(context) {
 	context.fillStyle = "hsl(30, 5%, 20%)";
-	context.fillRect(START_X, START_Y, 10 * CELL_SIZE, 20 * CELL_SIZE);
+	context.fillRect(START_X, START_Y, COLS * CELL_SIZE, ROWS * CELL_SIZE);
 	for (const [position, cell] of cells.entries()) {
 		if (cell !== " ") {
-			context.fillStyle = colors[cell];
-			context.fillRect(START_X + (position % 10) * CELL_SIZE, START_Y + Math.floor(position / 10 - 2) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+			context.fillStyle = COLORS[cell];
+			context.fillRect(START_X + (position % COLS) * CELL_SIZE, START_Y + Math.floor(position / COLS - 2) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 		}
 	}
 	for (const [position, tetromino] of queue.entries()) {
-		context.fillStyle = colors[tetromino];
-		for (const block of startingBlocks[tetromino]) {
-			context.fillRect(QUEUE_START_X + (block % 10 - 3) * CELL_SIZE, QUEUE_START_Y + QUEUE_GAP * position + Math.floor(block / 10) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+		context.fillStyle = COLORS[tetromino];
+		for (const block of STARTING_BLOCKS[tetromino]) {
+			context.fillRect(QUEUE_START_X + (block % COLS - (MID - 1)) * CELL_SIZE, QUEUE_START_Y + QUEUE_GAP * position + Math.floor(block / COLS) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 		}
 	}
 }
