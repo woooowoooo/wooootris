@@ -1,23 +1,22 @@
 # Gameplay
-- [ ] Grid
-	- [x] 10×20
+- [x] Grid
 	- [ ] Hidden rows at top
 - [ ] Pieces
 	- [ ] 7bag
 	- [ ] Upcoming pieces
 	- [ ] Hold piece (C)
 	- [ ] Ghost piece
-- [ ] Gravity
-	- [x] Basic gravity
+- [x] Gravity
 	- [x] Collision detection
 	- [ ] Reduce frame speed
-- [ ] Moving pieces (Left, Right)
+- [x] Moving pieces (Left, Right)
+	- [ ] Locking
 - [ ] Super Rotation System
 	- [ ] Rotation (Z: counter, X: clockwise, A/Shift: 180)
 	- [ ] Kicks
 - [ ] Drops
 	- [ ] Hard (Space/Up)
-	- [ ] Soft (Down)
+	- [x] Soft (Down)
 - [ ] Death
 	- [ ] Retry (R)
 - [ ] Modes

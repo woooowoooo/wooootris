@@ -1,5 +1,5 @@
 import StateMachine from "./state-machine/module.js";
-import update from "./tetris.js";
+import {handle, update} from "./tetris.js";
 const canvas = document.getElementById("game");
 canvas.width = 1920;
 canvas.height = 1280;
@@ -248,6 +248,7 @@ function loop() {
 	if (!stateMachine.is("main")) {
 		return;
 	}
+	handle(keysPressed);
 	render();
 	// Handle inputs
 	if (keysPressed.has("p") || keysPressed.has("P") || keysPressed.has("Escape")) {

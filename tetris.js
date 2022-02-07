@@ -17,22 +17,27 @@ let current = {
 	type: "O",
 	blocks: [4, 5, 14, 15]
 };
-function collisionCheck(block) {
-	return block + 10 > 199 || cells[block + 10] !== " " && !current.blocks.includes(block + 10);
+// Functions
+function collisionCheck(cell) {
+	return cells[cell] !== " " && !current.blocks.includes(cell);
 }
-export default function update(context) {
+function updateTetronimo(newPosition) {
+	// Operations separated so upper blocks don't affect lower blocks
+	for (const block of current.blocks) {
+		cells[block] = " ";
+	}
+	current.blocks = newPosition;
+	for (const block of current.blocks) {
+		cells[block] = current.type;
+	}
+}
+}
+export function update(context) {
 	context.fillStyle = "hsl(30, 5%, 20%)";
 	context.fillRect(660, 40, 600, 1200);
 	// Update
-	if (!current.blocks.some(collisionCheck)) {
-		// Operations separated so upper blocks don't affect lower blocks
-		for (const block of current.blocks) {
-			cells[block] = " ";
-		}
-		current.blocks = current.blocks.map(block => block + 10);
-		for (const block of current.blocks) {
-			cells[block] = current.type;
-		}
+	if (!current.blocks.some(block => block + 10 > 199 || collisionCheck(block + 10))) {
+		updateTetronimo(current.blocks.map(block => block + 10));
 	}
 	// Render
 	for (const [position, cell] of cells.entries()) {
@@ -42,4 +47,17 @@ export default function update(context) {
 		}
 	}
 	tick++;
+}
+export function handle(keys) {
+	for (const key of keys) {
+		if (key === "ArrowLeft" && !current.blocks.some(block => (block - 1) % 10 === 9 || collisionCheck(block - 1))) {
+			updateTetronimo(current.blocks.map(block => block - 1));
+		} else if (key === "ArrowRight" && !current.blocks.some(block => (block + 1) % 10 === 0 || collisionCheck(block + 1))) {
+			updateTetronimo(current.blocks.map(block => block + 1));
+		} else if (key === "ArrowDown" && !current.blocks.some(block => block + 10 > 199 || collisionCheck(block + 10))) {
+			// Repeat of lines 52-54
+			updateTetronimo(current.blocks.map(block => block + 10));
+		}
+		// TODO: Rotation
+	}
 }
