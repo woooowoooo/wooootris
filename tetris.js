@@ -105,7 +105,12 @@ export function update() {
 	if (subFrame === 0) {
 		const fell = gravity();
 		if (!fell) {
-			// TODO: Clear lines
+			for (const row of new Set(current.blocks.map(block => Math.floor(block / COLS)))) {
+				if (cells.slice(row * COLS, (row + 1) * COLS).every(cell => cell !== " ")) {
+					cells.splice(row * COLS, COLS);
+					cells.unshift(...Array(COLS).fill(" "));
+				}
+			}
 			current = newTetronimo(queue.shift());
 			if (queue.length < NEXT_AMOUNT) {
 				queue.push(...newBag());
