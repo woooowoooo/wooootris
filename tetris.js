@@ -28,20 +28,23 @@ const CELL_AMOUNT = COLS * (ROWS + 2);
 const START_X = (1920 - COLS * CELL_SIZE) / 2;
 const START_Y = (1280 - ROWS * CELL_SIZE) / 2;
 const NEXT_AMOUNT = 6;
-const QUEUE_GAP = 200;
+const QUEUE_GAP = 180;
 const QUEUE_START_X = START_X + COLS * CELL_SIZE + 150;
 const QUEUE_START_Y = (1280 - (NEXT_AMOUNT - 1) * QUEUE_GAP - 2 * CELL_SIZE) / 2;
+const HELD_START_X = START_X - 4 * CELL_SIZE - 150;
 // State variables
 let cells = Array(CELL_AMOUNT).fill(" ");
 let subFrame = 1; // Starts at 1 so the tetronimo doesn't immediately fall
 let lockTimer = 0;
 let queue = Array(7);
+let held = null;
 let current = { // Will be filled in by newTetronimo()
 	type: "",
 	blocks: []
 };
 let gameOver = false;
-let changed = false;
+let changed = true;
+let hasHeld = false;
 // New game
 function newBag() {
 	const bag = ["I", "O", "T", "S", "Z", "J", "L"];
@@ -63,8 +66,11 @@ export function newGame() {
 	subFrame = 1;
 	lockTimer = 0;
 	queue = newBag();
+	held = null;
 	current = newTetronimo(queue.shift());
 	gameOver = false;
+	changed = true;
+	hasHeld = false;
 }
 // Helper functions
 function newPosition(type, position) {
@@ -100,6 +106,7 @@ function lock() { // Returns whether the game is over
 	}
 	subFrame = 1;
 	lockTimer = 0;
+	hasHeld = false;
 	return false;
 }
 // Game loop
@@ -115,6 +122,15 @@ export function handle(keys) {
 			updateTetronimo(current.blocks.map(block => block + 1));
 		} else if (key === "ArrowDown" && !current.blocks.some(block => block + COLS > (CELL_AMOUNT - 1) || collisionCheck(block + COLS))) {
 			updateTetronimo(current.blocks.map(block => block + COLS));
+		} else if (key === "C" || key === "c") {
+			if (hasHeld) {
+				return;
+			}
+			hasHeld = true;
+			for (const block of current.blocks) {
+				cells[block] = " ";
+			}
+			[held, current] = [current.type, newTetronimo(held ?? queue.shift())];
 		} else {
 			changed = false;
 		}
@@ -151,10 +167,20 @@ export function render(context) {
 			context.fillRect(START_X + (position % COLS) * CELL_SIZE, START_Y + Math.floor(position / COLS - 2) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 		}
 	}
-	for (const [position, tetromino] of queue.entries()) {
+	context.fillStyle = "hsl(30, 5%, 80%)";
+	context.fillRect(QUEUE_START_X - CELL_SIZE, QUEUE_START_Y - CELL_SIZE, 6 * CELL_SIZE, NEXT_AMOUNT * QUEUE_GAP + CELL_SIZE);
+	for (const [position, tetromino] of Array.from(queue.entries()).slice(0, NEXT_AMOUNT)) {
 		context.fillStyle = COLORS[tetromino];
 		for (const block of BLOCKS[tetromino]) {
 			context.fillRect(QUEUE_START_X + ((block + 1) % COLS) * CELL_SIZE, QUEUE_START_Y + QUEUE_GAP * position + Math.floor((block + 1) / COLS) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+		}
+	}
+	context.fillStyle = "hsl(30, 5%, 80%)";
+	context.fillRect(HELD_START_X - CELL_SIZE, QUEUE_START_Y - CELL_SIZE, 6 * CELL_SIZE, 4 * CELL_SIZE);
+	if (held != null) {
+		context.fillStyle = COLORS[held];
+		for (const block of BLOCKS[held]) {
+			context.fillRect(HELD_START_X + ((block + 1) % COLS) * CELL_SIZE, QUEUE_START_Y + Math.floor((block + 1) / COLS) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 		}
 	}
 }
