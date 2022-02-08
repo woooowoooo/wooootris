@@ -21,6 +21,7 @@ const COLORS = {
 	"T": "hsl(300, 90%, 50%)"
 };
 const SPEED = 60; // Animation frames per Tetris frame
+const LOCK_SPEED = 60;
 // Position constants
 const CELL_SIZE = 60;
 const CELL_AMOUNT = COLS * (ROWS + 2);
@@ -33,11 +34,13 @@ const QUEUE_START_Y = (1280 - (NEXT_AMOUNT - 1) * QUEUE_GAP - 2 * CELL_SIZE) / 2
 // State variables
 let cells = Array(CELL_AMOUNT).fill(" ");
 let subFrame = 1; // Starts at 1 so the tetronimo doesn't immediately fall
+let lockTimer = 0;
 let queue = Array(7);
 let current = { // Will be filled in by newTetronimo()
 	type: "",
 	blocks: []
 };
+let gameOver = false;
 let changed = false;
 // New game
 function newBag() {
@@ -58,8 +61,10 @@ function newTetronimo(type) {
 export function newGame() {
 	cells = Array(CELL_AMOUNT).fill(" ");
 	subFrame = 1;
+	lockTimer = 0;
 	queue = newBag();
 	current = newTetronimo(queue.shift());
+	gameOver = false;
 }
 // Helper functions
 function newPosition(type, position) {
@@ -78,13 +83,6 @@ function updateTetronimo(position) {
 		cells[block] = current.type;
 	}
 }
-function gravity() {
-	const canFall = !current.blocks.some(block => block + COLS > (CELL_AMOUNT - 1) || collisionCheck(block + COLS));
-	if (canFall) {
-		updateTetronimo(current.blocks.map(block => block + COLS));
-	}
-	return canFall;
-}
 function lock() { // Returns whether the game is over
 	const rows = new Set(current.blocks.map(block => Math.floor(block / COLS)));
 	if (rows.has(1)) {
@@ -100,6 +98,8 @@ function lock() { // Returns whether the game is over
 	if (queue.length < NEXT_AMOUNT) {
 		queue.push(...newBag());
 	}
+	subFrame = 1;
+	lockTimer = 0;
 	return false;
 }
 // Game loop
@@ -113,8 +113,8 @@ export function handle(keys) {
 			updateTetronimo(current.blocks.map(block => block - 1));
 		} else if (key === "ArrowRight" && !current.blocks.some(block => (block + 1) % COLS === 0 || collisionCheck(block + 1))) {
 			updateTetronimo(current.blocks.map(block => block + 1));
-		} else if (key === "ArrowDown") {
-			gravity();
+		} else if (key === "ArrowDown" && !current.blocks.some(block => block + COLS > (CELL_AMOUNT - 1) || collisionCheck(block + COLS))) {
+			updateTetronimo(current.blocks.map(block => block + COLS));
 		} else {
 			changed = false;
 		}
@@ -122,16 +122,25 @@ export function handle(keys) {
 	}
 }
 export function update() {
+	const canFall = !current.blocks.some(block => block + COLS > (CELL_AMOUNT - 1) || collisionCheck(block + COLS));
 	if (subFrame === 0) {
-		if (!gravity() && lock()) {
-			// If the tetronimo can't fall and can't lock, game over
-			return [true, true];
-		}
 		changed = true;
+		if (canFall) {
+			updateTetronimo(current.blocks.map(block => block + COLS));
+		}
+	}
+	if (!canFall) {
+		lockTimer++;
+	} else {
+		lockTimer = 0;
+	}
+	if (lockTimer >= LOCK_SPEED) {
+		changed = true;
+		gameOver = lock();
 	}
 	subFrame++;
 	subFrame %= SPEED;
-	return [false, changed];
+	return [gameOver, changed];
 }
 export function render(context) {
 	context.fillStyle = "hsl(30, 5%, 20%)";
