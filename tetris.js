@@ -32,19 +32,21 @@ const QUEUE_GAP = 180;
 const QUEUE_START_X = START_X + COLS * CELL_SIZE + 150;
 const QUEUE_START_Y = (1280 - (NEXT_AMOUNT - 1) * QUEUE_GAP - 2 * CELL_SIZE) / 2;
 const HELD_START_X = START_X - 4 * CELL_SIZE - 150;
+const SCORE_START_Y = QUEUE_START_Y + 2 * CELL_SIZE + QUEUE_GAP;
 // State variables
 let cells = Array(CELL_AMOUNT).fill(" ");
-let gravityTimer = 0;
-let lockTimer = 0;
 let queue = Array(7);
 let held = null;
 let current = { // Will be filled in by newTetronimo()
 	type: "",
 	blocks: []
 };
+let score = 0;
 let gameOver = false;
 let changed = true;
 let hasHeld = false;
+let gravityTimer = 0;
+let lockTimer = 0;
 // New game
 function newBag() {
 	const bag = ["I", "O", "T", "S", "Z", "J", "L"];
@@ -63,14 +65,15 @@ function newTetronimo(type) {
 }
 export function newGame() {
 	cells = Array(CELL_AMOUNT).fill(" ");
-	gravityTimer = 0;
-	lockTimer = 0;
 	queue = newBag();
 	held = null;
 	current = newTetronimo(queue.shift());
+	score = 0;
 	gameOver = false;
 	changed = true;
 	hasHeld = false;
+	gravityTimer = 0;
+	lockTimer = 0;
 }
 // Helper functions
 function newPosition(type, position) {
@@ -99,6 +102,7 @@ function lock() { // Returns whether the game is over
 	}
 	for (const row of rows) {
 		if (cells.slice(row * COLS, (row + 1) * COLS).every(cell => cell !== " ")) {
+			score += 10;
 			cells.splice(row * COLS, COLS);
 			cells.unshift(...Array(COLS).fill(" "));
 		}
@@ -184,4 +188,8 @@ export function render(context) {
 			context.fillRect(HELD_START_X + ((block + 1) % COLS) * CELL_SIZE, QUEUE_START_Y + Math.floor((block + 1) / COLS) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 		}
 	}
+	context.fontSize = 6;
+	context.textAlign = "right";
+	context.fillStyle = "black";
+	context.fillText(score.toString().padStart(8, "0"), HELD_START_X + 5 * CELL_SIZE, SCORE_START_Y);
 }

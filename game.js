@@ -17,6 +17,11 @@ let paused = false;
 let muted = false;
 const objects = new Map();
 // Helper functions
+Object.defineProperty(context, "fontSize", {
+	set: size => {
+		context.font = `${size * 1024 / 100}px "Commodore 64", sans-serif`;
+	}
+});
 function clear() {
 	context.clearRect(0, 0, 1920, 1280);
 	for (const object of Array.from(objects.values()).filter(object => (object instanceof Button))) {
@@ -34,9 +39,6 @@ function getMousePosition(event) {
 	const bounds = canvas.getBoundingClientRect();
 	mouse.x = (event.clientX - bounds.left) * 1920 / (bounds.right - bounds.left);
 	mouse.y = (event.clientY - bounds.top) * 1280 / (bounds.bottom - bounds.top);
-}
-function setFontSize(size) {
-	context.font = `${size * 1024 / 100}px "Commodore 64", sans-serif`;
 }
 function wrapClickEvent(callback, condition = (() => true)) {
 	// TODO: Figure out a way to use {once: true}
@@ -96,7 +98,7 @@ class TextButton extends Button {
 		hitbox.rect(x - buttonWidth / 2 - 80, y + 16, buttonWidth + 160, 96);
 		hitbox.closePath();
 		function draw() {
-			setFontSize(8);
+			context.fontSize = 8;
 			context.drawImage(images.buttonStart, x - buttonWidth / 2 - 80, y, 80, 128);
 			context.drawImage(images.buttonMiddle, x - buttonWidth / 2, y, buttonWidth, 128);
 			context.drawImage(images.buttonEnd, x + buttonWidth / 2, y, 80, 128);
@@ -178,10 +180,10 @@ const stateMachine = new StateMachine({
 			context.fillStyle = "black";
 			context.fillRect(0, 0, 1920, 1280);
 			context.textAlign = "center";
-			setFontSize(16);
+			context.fontSize = 16;
 			context.fillStyle = "white";
 			context.fillText("LOADING", 960, 400);
-			setFontSize(8);
+			context.fontSize = 8;
 			context.fillText("If this doesn't go away,", 960, 800);
 			context.fillText("refresh the page.", 960, 960);
 			await loadResources();
@@ -190,7 +192,7 @@ const stateMachine = new StateMachine({
 			clear();
 			context.fillStyle = "black";
 			context.fillRect(0, 0, 1920, 1280);
-			setFontSize(8);
+			context.fontSize = 8;
 			context.fillStyle = "white";
 			context.fillText("Loading finished.", 960, 400);
 			context.fillText("CLICK ANYWHERE", 960, 800);
@@ -227,7 +229,8 @@ const stateMachine = new StateMachine({
 			objects.set("paused", new Drawable(() => {
 				context.fillStyle = "rgba(0, 0, 0, 0.5)";
 				context.fillRect(0, 0, 1920, 1280);
-				setFontSize(16);
+				context.fontSize = 16;
+				context.textAlign = "center";
 				context.fillStyle = "white";
 				context.fillText("GAME OVER", 960, 400);
 			}));
