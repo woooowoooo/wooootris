@@ -34,7 +34,7 @@ const QUEUE_START_Y = (1280 - (NEXT_AMOUNT - 1) * QUEUE_GAP - 2 * CELL_SIZE) / 2
 const HELD_START_X = START_X - 4 * CELL_SIZE - 150;
 // State variables
 let cells = Array(CELL_AMOUNT).fill(" ");
-let subFrame = 1; // Starts at 1 so the tetronimo doesn't immediately fall
+let gravityTimer = 0;
 let lockTimer = 0;
 let queue = Array(7);
 let held = null;
@@ -63,7 +63,7 @@ function newTetronimo(type) {
 }
 export function newGame() {
 	cells = Array(CELL_AMOUNT).fill(" ");
-	subFrame = 1;
+	gravityTimer = 0;
 	lockTimer = 0;
 	queue = newBag();
 	held = null;
@@ -107,7 +107,7 @@ function lock() { // Returns whether the game is over
 	if (queue.length < NEXT_AMOUNT) {
 		queue.push(...newBag());
 	}
-	subFrame = 1;
+	gravityTimer = 0;
 	lockTimer = 0;
 	hasHeld = false;
 	return false;
@@ -141,21 +141,22 @@ export function handle(keys) {
 	}
 }
 export function update() {
-	if (subFrame === 0) {
-		changed = true;
-		updateTetronimo(current.blocks.map(block => block + COLS), (newBlock => newBlock > (CELL_AMOUNT - 1)));
-	}
 	if (current.blocks.some(block => block + COLS > (CELL_AMOUNT - 1) || collisionCheck(block + COLS))) {
+		gravityTimer = 0;
 		lockTimer++;
 	} else {
+		gravityTimer++;
 		lockTimer = 0;
+	}
+	if (gravityTimer >= SPEED) {
+		changed = true;
+		gravityTimer = 0;
+		updateTetronimo(current.blocks.map(block => block + COLS), (newBlock => newBlock > (CELL_AMOUNT - 1)));
 	}
 	if (lockTimer >= LOCK_SPEED) {
 		changed = true;
 		gameOver = lock();
 	}
-	subFrame++;
-	subFrame %= SPEED;
 	return [gameOver, changed];
 }
 export function render(context) {
