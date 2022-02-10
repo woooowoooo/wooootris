@@ -4,7 +4,7 @@
 - [ ] Pieces
 	- [x] 7bag
 	- [x] Upcoming pieces
-	- [ ] Hold piece (C)
+	- [x] Hold piece (C)
 	- [ ] Ghost piece
 - [x] Gravity
 	- [x] Collision detection

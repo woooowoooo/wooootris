@@ -79,7 +79,10 @@ function newPosition(type, position) {
 function collisionCheck(cell) {
 	return cells[cell] !== " " && !current.blocks.includes(cell);
 }
-function updateTetronimo(position) {
+function updateTetronimo(position, checkBorder) {
+	if (position.some(block => checkBorder(block) || collisionCheck(block))) {
+		return;
+	}
 	// Operations separated so upper blocks don't affect lower blocks
 	for (const block of current.blocks) {
 		cells[block] = " ";
@@ -116,12 +119,12 @@ export function handle(keys) {
 		if (key === "r" || key === "R") {
 			newGame();
 			return;
-		} else if (key === "ArrowLeft" && !current.blocks.some(block => (block - 1) % COLS === COLS - 1 || collisionCheck(block - 1))) {
-			updateTetronimo(current.blocks.map(block => block - 1));
-		} else if (key === "ArrowRight" && !current.blocks.some(block => (block + 1) % COLS === 0 || collisionCheck(block + 1))) {
-			updateTetronimo(current.blocks.map(block => block + 1));
-		} else if (key === "ArrowDown" && !current.blocks.some(block => block + COLS > (CELL_AMOUNT - 1) || collisionCheck(block + COLS))) {
-			updateTetronimo(current.blocks.map(block => block + COLS));
+		} else if (key === "ArrowLeft") {
+			updateTetronimo(current.blocks.map(block => block - 1), (newBlock => newBlock % COLS === COLS - 1));
+		} else if (key === "ArrowRight") {
+			updateTetronimo(current.blocks.map(block => block + 1), (newBlock => newBlock % COLS === 0));
+		} else if (key === "ArrowDown") {
+			updateTetronimo(current.blocks.map(block => block + COLS), (newBlock => newBlock > CELL_AMOUNT - 1));
 		} else if (key === "C" || key === "c") {
 			if (hasHeld) {
 				return;
@@ -138,14 +141,11 @@ export function handle(keys) {
 	}
 }
 export function update() {
-	const canFall = !current.blocks.some(block => block + COLS > (CELL_AMOUNT - 1) || collisionCheck(block + COLS));
 	if (subFrame === 0) {
 		changed = true;
-		if (canFall) {
-			updateTetronimo(current.blocks.map(block => block + COLS));
-		}
+		updateTetronimo(current.blocks.map(block => block + COLS), (newBlock => newBlock > (CELL_AMOUNT - 1)));
 	}
-	if (!canFall) {
+	if (current.blocks.some(block => block + COLS > (CELL_AMOUNT - 1) || collisionCheck(block + COLS))) {
 		lockTimer++;
 	} else {
 		lockTimer = 0;
