@@ -1,7 +1,8 @@
 // Constants
-const COLS = 10;
 const ROWS = 20;
-const MID = Math.floor((COLS - 1) / 2);
+const TCOLS = 10;
+const COLS = TCOLS + 1;
+const MID = Math.floor(COLS / 2);
 const BLOCKS = {
 	"I": [-1, 0, 1, 2],
 	"O": [0, 1, COLS, COLS + 1],
@@ -25,11 +26,11 @@ const LOCK_SPEED = 60;
 // Position constants
 const CELL_SIZE = 60;
 const CELL_AMOUNT = COLS * (ROWS + 2);
-const START_X = (1920 - COLS * CELL_SIZE) / 2;
+const START_X = (1920 - TCOLS * CELL_SIZE) / 2;
 const START_Y = (1280 - ROWS * CELL_SIZE) / 2;
 const NEXT_AMOUNT = 6;
 const QUEUE_GAP = 180;
-const QUEUE_START_X = START_X + COLS * CELL_SIZE + 150;
+const QUEUE_START_X = START_X + TCOLS * CELL_SIZE + 150;
 const QUEUE_START_Y = (1280 - (NEXT_AMOUNT - 1) * QUEUE_GAP - 2 * CELL_SIZE) / 2;
 const HELD_START_X = START_X - 4 * CELL_SIZE - 150;
 const SCORE_START_Y = QUEUE_START_Y + 2 * CELL_SIZE + QUEUE_GAP;
@@ -101,8 +102,8 @@ function lock() { // Returns whether the game is over
 		return true;
 	}
 	for (const row of rows) {
-		if (cells.slice(row * COLS, (row + 1) * COLS).every(cell => cell !== " ")) {
-			score += 10;
+		if (cells.slice(row * COLS + 1, (row + 1) * COLS).every(cell => cell !== " ")) {
+			score += 1;
 			cells.splice(row * COLS, COLS);
 			cells.unshift(...Array(COLS).fill(" "));
 		}
@@ -165,11 +166,11 @@ export function update() {
 }
 export function render(context) {
 	context.fillStyle = "hsl(30, 5%, 20%)";
-	context.fillRect(START_X, START_Y, COLS * CELL_SIZE, ROWS * CELL_SIZE);
+	context.fillRect(START_X, START_Y, TCOLS * CELL_SIZE, ROWS * CELL_SIZE);
 	for (const [position, cell] of cells.entries()) {
 		if (cell !== " ") {
 			context.fillStyle = COLORS[cell];
-			context.fillRect(START_X + (position % COLS) * CELL_SIZE, START_Y + Math.floor(position / COLS - 2) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+			context.fillRect(START_X + (position % COLS - 1) * CELL_SIZE, START_Y + Math.floor(position / COLS - 2) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 		}
 	}
 	context.fillStyle = "hsl(30, 5%, 80%)";
@@ -191,5 +192,5 @@ export function render(context) {
 	context.fontSize = 6;
 	context.textAlign = "right";
 	context.fillStyle = "black";
-	context.fillText(score.toString().padStart(8, "0"), HELD_START_X + 5 * CELL_SIZE, SCORE_START_Y);
+	context.fillText("Score " + score.toString().padStart(4, "0"), HELD_START_X + 5 * CELL_SIZE, SCORE_START_Y);
 }
