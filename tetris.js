@@ -42,7 +42,6 @@ const BLOCKS = {
 		[-COLS - 1, -COLS, 0, COLS]
 	]
 };
-};
 const COLORS = {
 	"Z": "hsl(0, 70%, 50%)",
 	"L": "hsl(30, 90%, 50%)",
