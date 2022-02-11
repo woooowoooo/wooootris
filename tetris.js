@@ -4,13 +4,44 @@ const TCOLS = 10;
 const COLS = TCOLS + 1;
 const MID = Math.floor(COLS / 2);
 const BLOCKS = {
-	"I": [-1, 0, 1, 2],
-	"O": [0, 1, COLS, COLS + 1],
-	"T": [0, COLS - 1, COLS, COLS + 1],
-	"S": [0, 1, COLS - 1, COLS],
-	"Z": [-1, 0, COLS, COLS + 1],
-	"J": [-1, COLS - 1, COLS, COLS + 1],
-	"L": [1, COLS - 1, COLS, COLS + 1]
+	"I": [
+		[-1, 0, 1, 2],
+		[-COLS, 0, COLS, 2 * COLS],
+		[-2, -1, 0, 1],
+		[-2 * COLS, -COLS, 0, COLS]
+	],
+	"O": [[-COLS, -COLS + 1, 0, 1]], // "O" blocks don't rotate
+	"T": [
+		[-COLS, -1, 0, 1],
+		[-COLS, 0, 1, COLS],
+		[-1, 0, 1, COLS],
+		[-COLS, -1, 0, COLS]
+	],
+	"S": [
+		[-COLS, -COLS + 1, -1, 0],
+		[-COLS, 0, 1, COLS + 1],
+		[0, 1, COLS - 1, COLS],
+		[-COLS - 1, -1, 0, COLS]
+	],
+	"Z": [
+		[-COLS - 1, -COLS, 0, 1],
+		[-COLS + 1, 0, 1, COLS],
+		[-1, 0, COLS, COLS + 1],
+		[-COLS, -1, 0, COLS - 1]
+	],
+	"J": [
+		[-COLS - 1, -1, 0, 1],
+		[-COLS, -COLS + 1, 0, COLS],
+		[-1, 0, 1, COLS + 1],
+		[-COLS, 0, COLS - 1, COLS]
+	],
+	"L": [
+		[-COLS + 1, -1, 0, 1],
+		[-COLS, 0, COLS, COLS + 1],
+		[-1, 0, 1, COLS - 1],
+		[-COLS - 1, -COLS, 0, COLS]
+	]
+};
 };
 const COLORS = {
 	"Z": "hsl(0, 70%, 50%)",
@@ -40,6 +71,8 @@ let queue = Array(7);
 let held = null;
 let current = { // Will be filled in by newTetronimo()
 	type: "",
+	center: MID,
+	rotation: 0,
 	blocks: []
 };
 let score = 0;
@@ -57,8 +90,11 @@ function newBag() {
 	}
 	return bag;
 }
+function newPosition(type, center, rotation = 0) {
+	return BLOCKS[type][rotation].map(offset => center + offset);
+}
 function newTetronimo(type) {
-	const newCurrent = {type, blocks: newPosition(type, MID)};
+	const newCurrent = {type, center: MID, rotation: 0, blocks: newPosition(type, MID + COLS, 0)};
 	for (const block of newCurrent.blocks) {
 		cells[block] = newCurrent.type;
 	}
@@ -77,14 +113,15 @@ export function newGame() {
 	lockTimer = 0;
 }
 // Helper functions
-function newPosition(type, position) {
-	return BLOCKS[type].map(offset => position + offset);
+function posMod(x, y) {
+	return (x + y) % y;
 }
 function collisionCheck(cell) {
 	return cells[cell] !== " " && !current.blocks.includes(cell);
 }
-function updateTetronimo(position, checkBorder) {
-	if (position.some(block => checkBorder(block) || collisionCheck(block))) {
+function updateTetronimo(offset, rOffset) {
+	const position = newPosition(current.type, current.center + offset, posMod(current.rotation + rOffset, 4));
+	if (position.some(block => block % COLS === 0 || block > CELL_AMOUNT - 1 || collisionCheck(block))) {
 		return;
 	}
 	// Operations separated so upper blocks don't affect lower blocks
@@ -92,6 +129,9 @@ function updateTetronimo(position, checkBorder) {
 		cells[block] = " ";
 	}
 	current.blocks = position;
+	current.center += offset;
+	current.rotation += rOffset;
+	current.rotation = posMod(current.rotation, 4);
 	for (const block of current.blocks) {
 		cells[block] = current.type;
 	}
@@ -117,6 +157,14 @@ function lock() { // Returns whether the game is over
 	hasHeld = false;
 	return false;
 }
+function rotate(counterclockwise) {
+	if (current.type === "O") {
+		return;
+	}
+	const dr = counterclockwise ? -1 : 1;
+	updateTetronimo(0, dr);
+	// TODO: Kicks
+}
 // Game loop
 export function handle(keys) {
 	changed = true; // Set to false later if applicable
@@ -125,11 +173,15 @@ export function handle(keys) {
 			newGame();
 			return;
 		} else if (key === "ArrowLeft") {
-			updateTetronimo(current.blocks.map(block => block - 1), (newBlock => newBlock % COLS === COLS - 1));
+			updateTetronimo(-1, 0);
 		} else if (key === "ArrowRight") {
-			updateTetronimo(current.blocks.map(block => block + 1), (newBlock => newBlock % COLS === 0));
+			updateTetronimo(1, 0);
 		} else if (key === "ArrowDown") {
-			updateTetronimo(current.blocks.map(block => block + COLS), (newBlock => newBlock > CELL_AMOUNT - 1));
+			updateTetronimo(COLS, 0);
+		} else if (key === "X" || key === "x" || key === "ArrowUp") {
+			rotate(false);
+		} else if (key === "Z" || key === "z") {
+			rotate(true);
 		} else if (key === "C" || key === "c") {
 			if (hasHeld) {
 				return;
@@ -142,7 +194,6 @@ export function handle(keys) {
 		} else {
 			changed = false;
 		}
-		// TODO: Rotation
 	}
 }
 export function update() {
@@ -156,7 +207,7 @@ export function update() {
 	if (gravityTimer >= SPEED) {
 		changed = true;
 		gravityTimer = 0;
-		updateTetronimo(current.blocks.map(block => block + COLS), (newBlock => newBlock > (CELL_AMOUNT - 1)));
+		updateTetronimo(COLS, 0);
 	}
 	if (lockTimer >= LOCK_SPEED) {
 		changed = true;
@@ -177,16 +228,16 @@ export function render(context) {
 	context.fillRect(QUEUE_START_X - CELL_SIZE, QUEUE_START_Y - CELL_SIZE, 6 * CELL_SIZE, NEXT_AMOUNT * QUEUE_GAP + CELL_SIZE);
 	for (const [position, tetromino] of Array.from(queue.entries()).slice(0, NEXT_AMOUNT)) {
 		context.fillStyle = COLORS[tetromino];
-		for (const block of BLOCKS[tetromino]) {
-			context.fillRect(QUEUE_START_X + ((block + 1) % COLS) * CELL_SIZE, QUEUE_START_Y + QUEUE_GAP * position + Math.floor((block + 1) / COLS) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+		for (const block of BLOCKS[tetromino][0]) {
+			context.fillRect(QUEUE_START_X + posMod(block + 1, COLS) * CELL_SIZE, QUEUE_START_Y + QUEUE_GAP * position + Math.floor((block + 1) / COLS + 1) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 		}
 	}
 	context.fillStyle = "hsl(30, 5%, 80%)";
 	context.fillRect(HELD_START_X - CELL_SIZE, QUEUE_START_Y - CELL_SIZE, 6 * CELL_SIZE, 4 * CELL_SIZE);
 	if (held != null) {
 		context.fillStyle = COLORS[held];
-		for (const block of BLOCKS[held]) {
-			context.fillRect(HELD_START_X + ((block + 1) % COLS) * CELL_SIZE, QUEUE_START_Y + Math.floor((block + 1) / COLS) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+		for (const block of BLOCKS[held][0]) {
+			context.fillRect(HELD_START_X + posMod(block + 1, COLS) * CELL_SIZE, QUEUE_START_Y + Math.floor((block + 1) / COLS + 1) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 		}
 	}
 	context.fontSize = 6;

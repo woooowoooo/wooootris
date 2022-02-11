@@ -12,7 +12,7 @@
 - [x] Moving pieces (Left, Right)
 	- [x] Locking
 - [ ] Super Rotation System
-	- [ ] Rotation (Z: counter, X/Up: clockwise, A/Shift: 180)
+	- [x] Rotation (Z: counter, X/Up: clockwise, A/Shift: 180 (No 180 yet))
 	- [ ] Kicks
 - [ ] Drops
 	- [ ] Hard (Space)
@@ -32,7 +32,8 @@
 - [ ] Soft Drop Factor: How fast does soft drop happen
 
 # Scoring
-- [ ] 1, 2, 3 line clear
+- [x] Line clear
+	- [ ] Separate 1, 2, 3 line clear
 - [ ] Tetris
 - [ ] T-Spin
 	- [ ] 3-corner rule, 2-corner rule exceptions
