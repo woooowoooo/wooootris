@@ -1,12 +1,11 @@
 import StateMachine from "./state-machine/module.js";
-import {handle, update, render as tetrisRender, newGame} from "./tetris.js";
+import {onKeyDown, onKeyUp, update, render as tetrisRender, newGame} from "./tetris.js";
 const canvas = document.getElementById("game");
 canvas.width = 1920;
 canvas.height = 1280;
 const context = canvas.getContext("2d");
 context.imageSmoothingEnabled = false;
 // Variables
-const keysPressed = new Set();
 const mouse = {
 	x: 0,
 	y: 0
@@ -111,11 +110,7 @@ class TextButton extends Button {
 }
 // Noting input
 window.addEventListener("keydown", e => {
-	keysPressed.add(e.key);
 	console.log(`The "${e.key}" key was pressed.`);
-});
-window.addEventListener("keyup", e => {
-	keysPressed.delete(e.key);
 });
 canvas.addEventListener("click", e => {
 	getMousePosition(e);
@@ -216,12 +211,16 @@ const stateMachine = new StateMachine({
 		onMain() {
 			clear();
 			newGame();
+			window.addEventListener("keydown", onKeyDown);
+			window.addEventListener("keyup", onKeyUp);
 			objects.set("background", new Drawable(() => context.drawImage(images.main, 0, 0, 1920, 1280)));
 			objects.set(muted ? "unmute" : "mute", new MuteButton());
 			objects.set("tetris", new Drawable(() => tetrisRender(context)));
 			requestAnimationFrame(loop);
 		},
 		onGameOver() {
+			window.removeEventListener("keydown", onKeyDown);
+			window.removeEventListener("keyup", onKeyUp);
 			paused = true;
 			for (const sound of Object.values(sounds).filter(sound => !sound.paused)) {
 				sound.pause();
@@ -250,13 +249,7 @@ function loop() {
 	if (!stateMachine.is("main")) {
 		return;
 	}
-	// Handle inputs
-	if (keysPressed.has("Escape")) {
-		stateMachine.lose();
-	}
-	if (keysPressed.size) {
-		handle(keysPressed);
-	}
+	// Handling is done in tetris.js
 	// Update game state
 	const [gameOver, changed] = update();
 	if (gameOver) {

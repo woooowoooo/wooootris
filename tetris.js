@@ -65,6 +65,7 @@ const QUEUE_START_Y = (1280 - (NEXT_AMOUNT - 1) * QUEUE_GAP - 2 * CELL_SIZE) / 2
 const HELD_START_X = START_X - 4 * CELL_SIZE - 150;
 const SCORE_START_Y = QUEUE_START_Y + 2 * CELL_SIZE + QUEUE_GAP;
 // State variables
+const heldKeys = new Set();
 let cells = Array(CELL_AMOUNT).fill(" ");
 let queue = Array(7);
 let held = null;
@@ -93,6 +94,7 @@ function newPosition(type, center, rotation = 0) {
 	return BLOCKS[type][rotation].map(offset => center + offset);
 }
 function newTetronimo(type) {
+	changed = true;
 	const newCurrent = {type, center: MID, rotation: 0, blocks: newPosition(type, MID + COLS, 0)};
 	for (const block of newCurrent.blocks) {
 		cells[block] = newCurrent.type;
@@ -124,6 +126,7 @@ function updateTetronimo(offset, rOffset) {
 		return;
 	}
 	// Operations separated so upper blocks don't affect lower blocks
+	changed = true;
 	for (const block of current.blocks) {
 		cells[block] = " ";
 	}
@@ -165,37 +168,51 @@ function rotate(counterclockwise) {
 	// TODO: Kicks
 }
 // Game loop
-export function handle(keys) {
-	changed = true; // Set to false later if applicable
-	for (const key of keys) {
-		if (key === "r" || key === "R") {
-			newGame();
+export function onKeyDown(e) {
+	if (!heldKeys.has(e.key)) { // Prevent held key spam
+		heldKeys.add(e.key);
+		handle(e.key);
+	}
+}
+export function onKeyUp(e) {
+	heldKeys.delete(e.key);
+}
+export function handle(key) {
+	changed = false;
+	if (key === "Escape") {
+		gameOver = true;
+		heldKeys.clear();
+	} else if (key === "r" || key === "R") {
+		newGame();
+	} else if (key === "Space") {
+		// TODO: Hard drop
+	} else if (key === "X" || key === "x" || key === "ArrowUp") {
+		rotate(false);
+	} else if (key === "Z" || key === "z") {
+		rotate(true);
+	} else if (key === "C" || key === "c") {
+		if (hasHeld) {
 			return;
-		} else if (key === "ArrowLeft") {
-			updateTetronimo(-1, 0);
-		} else if (key === "ArrowRight") {
-			updateTetronimo(1, 0);
-		} else if (key === "ArrowDown") {
-			updateTetronimo(COLS, 0);
-		} else if (key === "X" || key === "x" || key === "ArrowUp") {
-			rotate(false);
-		} else if (key === "Z" || key === "z") {
-			rotate(true);
-		} else if (key === "C" || key === "c") {
-			if (hasHeld) {
-				return;
-			}
-			hasHeld = true;
-			for (const block of current.blocks) {
-				cells[block] = " ";
-			}
-			[held, current] = [current.type, newTetronimo(held ?? queue.shift())];
-		} else {
-			changed = false;
 		}
+		hasHeld = true;
+		for (const block of current.blocks) {
+			cells[block] = " ";
+		}
+		[held, current] = [current.type, newTetronimo(held ?? queue.shift())];
 	}
 }
 export function update() {
+	// Handle held keys
+	if (heldKeys.has("ArrowLeft")) {
+		updateTetronimo(-1, 0);
+	}
+	if (heldKeys.has("ArrowRight")) {
+		updateTetronimo(1, 0);
+	}
+	if (heldKeys.has("ArrowDown")) {
+		updateTetronimo(COLS, 0);
+	}
+	// Update board
 	if (current.blocks.some(block => block + COLS > (CELL_AMOUNT - 1) || collisionCheck(block + COLS))) {
 		gravityTimer = 0;
 		lockTimer++;
@@ -204,13 +221,11 @@ export function update() {
 		lockTimer = 0;
 	}
 	if (gravityTimer >= SPEED) {
-		changed = true;
 		gravityTimer = 0;
 		updateTetronimo(COLS, 0);
 	}
 	if (lockTimer >= LOCK_SPEED) {
-		changed = true;
-		gameOver = lock();
+		gameOver ||= lock();
 	}
 	return [gameOver, changed];
 }
