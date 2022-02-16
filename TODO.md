@@ -1,11 +1,13 @@
 # Gameplay
 - [x] Grid
 	- [x] Hidden rows at top
-- [ ] Pieces
+	- [ ] Visible lines
+- [x] Pieces
 	- [x] 7bag
 	- [x] Upcoming pieces
 	- [x] Hold piece (C)
-	- [ ] Ghost piece
+	- [x] Ghost piece
+	- [ ] Skins
 - [x] Gravity
 	- [x] Collision detection
 	- [x] Reduce frame speed
@@ -14,8 +16,8 @@
 - [x] Super Rotation System
 	- [x] Rotation (Z: counter, X/Up: clockwise, A/Shift: 180 (No 180 yet))
 	- [x] Kicks
-- [ ] Drops
-	- [ ] Hard (Space)
+- [x] Drops
+	- [x] Hard (Space)
 	- [x] Soft (Down)
 - [x] Death
 	- [x] Retry (R)
