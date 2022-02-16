@@ -14,7 +14,7 @@
 - [x] Moving pieces (Left, Right)
 	- [x] Locking
 - [x] Super Rotation System
-	- [x] Rotation (Z: counter, X/Up: clockwise, A/Shift: 180 (No 180 yet))
+	- [x] Rotation (Z: counter, X/Up: clockwise, A/Shift: 180)
 	- [x] Kicks
 - [x] Drops
 	- [x] Hard (Space)

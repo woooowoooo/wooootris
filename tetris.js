@@ -213,11 +213,10 @@ function lock() { // Returns whether the game is over
 	hasHeld = false;
 	return false;
 }
-function rotate(counterclockwise) {
+function rotate(dr) {
 	if (current.type === "O") {
 		return;
 	}
-	const dr = counterclockwise ? -1 : 1;
 	const table = current.type === "I" ? I_OFFSETS : OFFSETS;
 	[0, 1, 2, 3, 4].some(i => {
 		const curOffset = table[current.rotation][i];
@@ -229,13 +228,13 @@ function rotate(counterclockwise) {
 export function onKeyDown(e) {
 	if (!heldKeys.has(e.key)) { // Prevent held key spam
 		heldKeys.add(e.key);
-		handle(e.key);
+		handle(e);
 	}
 }
 export function onKeyUp(e) {
 	heldKeys.delete(e.key);
 }
-export function handle(key) {
+export function handle({key, location}) {
 	changed = false;
 	if (key === "Escape") {
 		gameOver = true;
@@ -246,9 +245,11 @@ export function handle(key) {
 		updateTetronimo(current.ghostCenter - current.center);
 		lock();
 	} else if (key === "X" || key === "x" || key === "ArrowUp") {
-		rotate(false);
+		rotate(1);
 	} else if (key === "Z" || key === "z") {
-		rotate(true);
+		rotate(-1);
+	} else if (key === "A" || key === "a" || key === "Shift" && location === KeyboardEvent.DOM_KEY_LOCATION_LEFT) {
+		rotate(2);
 	} else if (key === "C" || key === "c") {
 		if (hasHeld) {
 			return;
