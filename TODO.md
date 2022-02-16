@@ -17,7 +17,7 @@
 - [ ] Drops
 	- [ ] Hard (Space)
 	- [x] Soft (Down)
-- [ ] Death
+- [x] Death
 	- [x] Retry (R)
 - [ ] Modes
 	- [ ] 40 lines (sprint)
@@ -28,7 +28,7 @@
 ## Handling
 (in frames) (SDF is a multiplier to gravity)
 - [ ] Automatic Repeat Rate: How fast the pieces move left and right
-- [ ] Delayed Auto Shift: How long it takes for ARR to happen
+- [x] Delayed Auto Shift: How long it takes for ARR to happen
 - [ ] Soft Drop Factor: How fast does soft drop happen
 
 # Scoring
@@ -44,3 +44,5 @@
 - [ ] Perfect Clears
 - [ ] Combos (line clears)
 - [ ] Back-to-backs (tetrises and t-spins)
+- [ ] High scores
+	- [ ] LocalStorage

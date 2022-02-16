@@ -51,8 +51,10 @@ const COLORS = {
 	"J": "hsl(230, 70%, 50%)",
 	"T": "hsl(300, 90%, 50%)"
 };
-const SPEED = 60; // Animation frames per Tetris frame
+// Timers limits (in frames)
+const GRAVITY_SPEED = 60;
 const LOCK_SPEED = 60;
+const AUTOREPEAT_SPEED = 8; // Speed to start autorepeat, not speed of autorepeat
 // Position constants
 const CELL_SIZE = 60;
 const CELL_AMOUNT = COLS * (ROWS + 2);
@@ -81,6 +83,7 @@ let changed = true;
 let hasHeld = false;
 let gravityTimer = 0;
 let lockTimer = 0;
+let autorepeatTimer = 0;
 // New game
 function newBag() {
 	const bag = ["I", "O", "T", "S", "Z", "J", "L"];
@@ -112,6 +115,7 @@ export function newGame() {
 	hasHeld = false;
 	gravityTimer = 0;
 	lockTimer = 0;
+	autorepeatTimer = 0;
 }
 // Helper functions
 function posMod(x, y) {
@@ -123,7 +127,7 @@ function collisionCheck(cell) {
 function updateTetronimo(offset, rOffset) {
 	const position = newPosition(current.type, current.center + offset, posMod(current.rotation + rOffset, 4));
 	if (position.some(block => block % COLS === 0 || block > CELL_AMOUNT - 1 || collisionCheck(block))) {
-		return;
+		return false;
 	}
 	// Operations separated so upper blocks don't affect lower blocks
 	changed = true;
@@ -137,6 +141,7 @@ function updateTetronimo(offset, rOffset) {
 	for (const block of current.blocks) {
 		cells[block] = current.type;
 	}
+	return true;
 }
 function lock() { // Returns whether the game is over
 	const rows = new Set(current.blocks.map(block => Math.floor(block / COLS)));
@@ -203,11 +208,16 @@ export function handle(key) {
 }
 export function update() {
 	// Handle held keys
-	if (heldKeys.has("ArrowLeft")) {
-		updateTetronimo(-1, 0);
+	if (heldKeys.has("ArrowLeft") !== heldKeys.has("ArrowRight")) {
+		if (autorepeatTimer === 0) { // Move once before autorepeat
+			updateTetronimo(heldKeys.has("ArrowLeft") ? -1 : 1, 0);
+		}
+		autorepeatTimer += 1;
+	} else {
+		autorepeatTimer = 0;
 	}
-	if (heldKeys.has("ArrowRight")) {
-		updateTetronimo(1, 0);
+	if (autorepeatTimer >= AUTOREPEAT_SPEED) {
+		updateTetronimo(heldKeys.has("ArrowLeft") ? -1 : 1, 0);
 	}
 	if (heldKeys.has("ArrowDown")) {
 		updateTetronimo(COLS, 0);
@@ -220,7 +230,7 @@ export function update() {
 		gravityTimer++;
 		lockTimer = 0;
 	}
-	if (gravityTimer >= SPEED) {
+	if (gravityTimer >= GRAVITY_SPEED) {
 		gravityTimer = 0;
 		updateTetronimo(COLS, 0);
 	}
