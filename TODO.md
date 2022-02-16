@@ -11,9 +11,9 @@
 	- [x] Reduce frame speed
 - [x] Moving pieces (Left, Right)
 	- [x] Locking
-- [ ] Super Rotation System
+- [x] Super Rotation System
 	- [x] Rotation (Z: counter, X/Up: clockwise, A/Shift: 180 (No 180 yet))
-	- [ ] Kicks
+	- [x] Kicks
 - [ ] Drops
 	- [ ] Hard (Space)
 	- [x] Soft (Down)

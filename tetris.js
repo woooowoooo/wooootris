@@ -42,6 +42,18 @@ const BLOCKS = {
 		[-COLS - 1, -COLS, 0, COLS]
 	]
 };
+const OFFSETS = [
+	[0, 0, 0, 0, 0],
+	[0, 1, COLS + 1, -2 * COLS, -2 * COLS + 1],
+	[0, 0, 0, 0, 0],
+	[0, -1, COLS - 1, -2 * COLS, -2 * COLS - 1]
+];
+const I_OFFSETS = [
+	[0, -1, 2, -1, 2],
+	[-1, 0, 0, -COLS, 2 * COLS],
+	[-COLS - 1, -COLS + 1, -COLS - 2, 1, -2],
+	[-COLS, -COLS, -COLS, COLS, -2 * COLS]
+];
 const COLORS = {
 	"Z": "hsl(0, 70%, 50%)",
 	"L": "hsl(30, 90%, 50%)",
@@ -169,8 +181,12 @@ function rotate(counterclockwise) {
 		return;
 	}
 	const dr = counterclockwise ? -1 : 1;
-	updateTetronimo(0, dr);
-	// TODO: Kicks
+	const table = current.type === "I" ? I_OFFSETS : OFFSETS;
+	[0, 1, 2, 3, 4].some(i => {
+		const curOffset = table[current.rotation][i];
+		const newOffset = table[posMod(current.rotation + dr, 4)][i];
+		return updateTetronimo(curOffset - newOffset, dr);
+	});
 }
 // Game loop
 export function onKeyDown(e) {
