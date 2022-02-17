@@ -89,6 +89,7 @@ let current = { // Will be filled in by newTetronimo()
 	center: MID,
 	rotation: 0,
 	ghostCenter: CELL_AMOUNT - COLS + MID,
+	ghostBlocks: [],
 	blocks: []
 };
 let score = 0;
@@ -118,13 +119,9 @@ function newTetronimo(type) {
 		rotation: 0,
 		blocks: newPosition(type, MID + COLS)
 	};
-	for (const block of current.blocks) {
-		cells[block] = current.type;
-	}
-	current.ghostCenter = findGhostCenter();
-	for (const block of newPosition(current.type, current.ghostCenter, current.rotation)) {
-		cells[block] = "_";
-	}
+	fillBlocks(current.blocks, current.type);
+	updateGhost();
+	fillBlocks(current.ghostBlocks, "_");
 }
 export function newGame() {
 	cells = Array(CELL_AMOUNT).fill(" ");
@@ -143,53 +140,50 @@ export function newGame() {
 function posMod(x, y) {
 	return (x + y) % y;
 }
+function fillBlocks(blocks, color) {
+	for (const block of blocks) {
+		cells[block] = color;
+	}
+}
 function collisionCheck(cell) {
 	return cells[cell] !== " " && cells[cell] !== "_" && !current.blocks.includes(cell) && cell >= 0;
 }
-function findGhostCenter() {
+function updateGhost() {
 	let center = current.center;
 	while (center < CELL_AMOUNT) {
 		center += COLS;
 		const position = newPosition(current.type, center, current.rotation);
 		if (position.some(cell => cell > CELL_AMOUNT - 1 || collisionCheck(cell))) {
-			return center - COLS;
+			center -= COLS;
+			break;
 		}
 	}
-	return center;
+	current.ghostCenter = center;
+	current.ghostBlocks = newPosition(current.type, current.ghostCenter, current.rotation);
 }
 function updateTetronimo(offset, rOffset = 0) {
-	const position = newPosition(current.type, current.center + offset, posMod(current.rotation + rOffset, 4));
+	const position = newPosition(current.type, current.center + offset, (current.rotation + rOffset) % 4);
 	if (position.some(cell => cell % COLS === 0 || cell > CELL_AMOUNT - 1 || collisionCheck(cell))) {
 		return false;
 	}
 	// Operations separated so upper blocks don't affect lower blocks
 	// Remove old piece
 	changed = true;
-	for (const block of current.blocks) {
-		cells[block] = " ";
-	}
+	fillBlocks(current.blocks, " ");
 	if (offset % COLS !== 0 || rOffset !== 0) {
-		for (const block of newPosition(current.type, current.ghostCenter, current.rotation)) {
-			cells[block] = " ";
-		}
+		fillBlocks(current.ghostBlocks, " ");
 	}
 	// Change state
 	current.blocks = position;
 	current.center += offset;
 	current.rotation += rOffset;
-	current.rotation = posMod(current.rotation, 4);
+	current.rotation %= 4;
 	// Add new piece
-	for (const block of current.blocks) {
-		cells[block] = current.type;
-	}
 	if (offset % COLS !== 0 || rOffset !== 0) {
-		current.ghostCenter = findGhostCenter();
-		for (const block of newPosition(current.type, current.ghostCenter, current.rotation)) {
-			if (cells[block] === " ") {
-				cells[block] = "_";
-			}
-		}
+		updateGhost();
+		fillBlocks(current.ghostBlocks, "_");
 	}
+	fillBlocks(current.blocks, current.type);
 	return true;
 }
 function lock() { // Returns whether the game is over
@@ -220,7 +214,7 @@ function rotate(dr) {
 	const table = current.type === "I" ? I_OFFSETS : OFFSETS;
 	[0, 1, 2, 3, 4].some(i => {
 		const curOffset = table[current.rotation][i];
-		const newOffset = table[posMod(current.rotation + dr, 4)][i];
+		const newOffset = table[(current.rotation + dr) % 4][i];
 		return updateTetronimo(curOffset - newOffset, dr);
 	});
 }
@@ -245,22 +239,18 @@ export function handle({key, location}) {
 		updateTetronimo(current.ghostCenter - current.center);
 		lock();
 	} else if (key === "X" || key === "x" || key === "ArrowUp") {
-		rotate(1);
+		rotate(1); // Clockwise
 	} else if (key === "Z" || key === "z") {
-		rotate(-1);
+		rotate(3); // Counterclockwise
 	} else if (key === "A" || key === "a" || key === "Shift" && location === KeyboardEvent.DOM_KEY_LOCATION_LEFT) {
-		rotate(2);
+		rotate(2); // 180°
 	} else if (key === "C" || key === "c") {
 		if (hasHeld) {
 			return;
 		}
 		hasHeld = true;
-		for (const block of current.blocks) {
-			cells[block] = " ";
-		}
-		for (const block of newPosition(current.type, current.ghostCenter, current.rotation)) {
-			cells[block] = " ";
-		}
+		fillBlocks(current.blocks, " ");
+		fillBlocks(current.ghostBlocks, " ");
 		const oldHeld = held;
 		held = current.type;
 		newTetronimo(oldHeld ?? queue.shift());
