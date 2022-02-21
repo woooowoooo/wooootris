@@ -293,7 +293,7 @@ export function update() {
 	if (lockTimer >= LOCK_SPEED) {
 		gameOver ||= lock();
 	}
-	return [gameOver, changed];
+	return [changed, gameOver, score];
 }
 export function render(context) {
 	context.fillStyle = "hsl(30, 5%, 20%)";

@@ -14,6 +14,7 @@ const images = {};
 const sounds = {};
 let paused = false;
 let muted = false;
+let highScore = 0;
 const objects = new Map();
 // Helper functions
 Object.defineProperty(context, "fontSize", {
@@ -218,20 +219,23 @@ const stateMachine = new StateMachine({
 			objects.set("tetris", new Drawable(() => tetrisRender(context)));
 			requestAnimationFrame(loop);
 		},
-		onGameOver() {
+		onGameOver(_, score) {
 			window.removeEventListener("keydown", onKeyDown);
 			window.removeEventListener("keyup", onKeyUp);
 			paused = true;
 			for (const sound of Object.values(sounds).filter(sound => !sound.paused)) {
 				sound.pause();
 			}
-			objects.set("paused", new Drawable(() => {
+			objects.set("endScreen", new Drawable(() => {
 				context.fillStyle = "rgba(0, 0, 0, 0.5)";
 				context.fillRect(0, 0, 1920, 1280);
 				context.fontSize = 16;
 				context.textAlign = "center";
 				context.fillStyle = "white";
 				context.fillText("GAME OVER", 960, 400);
+				context.fontSize = 8;
+				context.fillText(`Score: ${score}`, 960, 540);
+				context.fillText(`High Score: ${highScore}`, 960, 640);
 			}));
 			objects.set("menu", new TextButton(672, 880, "Menu", stateMachine.toMenu, 480, true));
 			objects.set("retry", new TextButton(1248, 880, "Retry", stateMachine.retry, 480, true));
@@ -251,9 +255,10 @@ function loop() {
 	}
 	// Handling is done in tetris.js
 	// Update game state
-	const [gameOver, changed] = update();
+	const [changed, gameOver, score] = update();
 	if (gameOver) {
-		stateMachine.lose();
+		highScore = Math.max(score, highScore);
+		stateMachine.lose(score);
 	}
 	if (changed) { // If board has updated
 		render();

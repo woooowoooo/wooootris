@@ -46,5 +46,5 @@
 - [ ] Perfect Clears
 - [ ] Combos (line clears)
 - [ ] Back-to-backs (tetrises and t-spins)
-- [ ] High scores
+- [x] High scores
 	- [ ] LocalStorage
