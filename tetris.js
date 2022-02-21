@@ -64,9 +64,10 @@ const COLORS = {
 	"J": "hsl(230, 70%, 50%)",
 	"T": "hsl(300, 90%, 50%)"
 };
-// Timers limits (in frames)
+// Limits (speeds are in frames)
 const GRAVITY_SPEED = 60;
-const LOCK_SPEED = 60;
+const LOCK_MOVE_LIMIT = 10;
+const LOCK_SPEED = 40;
 const AUTOREPEAT_SPEED = 8; // Speed to start autorepeat, not speed of autorepeat
 // Position constants
 const CELL_SIZE = 60;
@@ -97,6 +98,7 @@ let gameOver = false;
 let changed = true;
 let hasHeld = false;
 let gravityTimer = 0;
+let lockMoves = 0;
 let lockTimer = 0;
 let autorepeatTimer = 0;
 // New game
@@ -133,6 +135,7 @@ export function newGame() {
 	changed = true;
 	hasHeld = false;
 	gravityTimer = 0;
+	lockMoves = 0;
 	lockTimer = 0;
 	autorepeatTimer = 0;
 }
@@ -172,6 +175,10 @@ function updateTetronimo(offset, rOffset = 0) {
 	fillBlocks(current.blocks, " ");
 	if (offset % COLS !== 0 || rOffset !== 0) {
 		fillBlocks(current.ghostBlocks, " ");
+		if (lockTimer !== 0 && lockMoves < LOCK_MOVE_LIMIT) {
+			lockMoves++;
+			lockTimer = 0;
+		}
 	}
 	// Change state
 	current.blocks = position;
@@ -203,6 +210,7 @@ function lock() { // Returns whether the game is over
 		queue.push(...newBag());
 	}
 	gravityTimer = 0;
+	lockMoves = 0;
 	lockTimer = 0;
 	hasHeld = false;
 	return false;
@@ -278,7 +286,6 @@ export function update() {
 		lockTimer++;
 	} else {
 		gravityTimer++;
-		lockTimer = 0;
 	}
 	if (gravityTimer >= GRAVITY_SPEED) {
 		gravityTimer = 0;
