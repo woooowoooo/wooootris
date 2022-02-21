@@ -85,14 +85,8 @@ const heldKeys = new Set();
 let cells = Array(CELL_AMOUNT).fill(" ");
 let queue = Array(7);
 let held = null;
-let current = { // Will be filled in by newTetronimo()
-	type: null,
-	center: MID,
-	rotation: 0,
-	ghostCenter: CELL_AMOUNT - COLS + MID,
-	ghostBlocks: [],
-	blocks: []
-};
+let current = null;
+let ghost = null;
 let score = 0;
 let gameOver = false;
 let changed = true;
@@ -101,6 +95,77 @@ let gravityTimer = 0;
 let lockMoves = 0;
 let lockTimer = 0;
 let autorepeatTimer = 0;
+// Piece class
+class Piece {
+	constructor (type, center, rotation, isGhost = false) {
+		changed = true;
+		this.type = type;
+		this.ghost = isGhost;
+		this.center = center ?? MID;
+		this.rotation = rotation ?? 0;
+		this.blocks = newPosition(type, center ?? MID + COLS, rotation ?? 0);
+		this.fill();
+		if (!isGhost) {
+			updateGhost(this);
+			ghost.fill();
+		}
+	}
+	clear() {
+		this.fill(" ");
+	}
+	fill(color = (this.ghost ? "_" : this.type)) {
+		for (const block of this.blocks) {
+			cells[block] = color;
+		}
+	}
+	update(offset, rOffset = 0) {
+		const position = newPosition(this.type, this.center + offset, (this.rotation + rOffset) % 4);
+		if (position.some(cell => cell % COLS === 0 || cell > CELL_AMOUNT - 1 || collisionCheck(this, cell))) {
+			return false;
+		}
+		// Operations separated so upper blocks don't affect lower blocks
+		// Remove old piece
+		changed = true;
+		this.clear();
+		if (offset % COLS !== 0 || rOffset !== 0) {
+			ghost.clear();
+			if (lockTimer !== 0 && lockMoves < LOCK_MOVE_LIMIT) {
+				lockMoves++;
+				lockTimer = 0;
+			}
+		}
+		// Change state
+		this.blocks = position;
+		this.center += offset;
+		this.rotation += rOffset;
+		this.rotation %= 4;
+		// Add new piece
+		if (offset % COLS !== 0 || rOffset !== 0) {
+			updateGhost();
+			ghost.fill();
+		}
+		this.fill();
+		return true;
+	}
+	rotate(dr) {
+		if (this.type === "O") {
+			return;
+		}
+		const table = this.type === "I" ? I_OFFSETS : OFFSETS;
+		[0, 1, 2, 3, 4].some(i => {
+			const curOffset = table[this.rotation][i];
+			const newOffset = table[(this.rotation + dr) % 4][i];
+			return this.update(curOffset - newOffset, dr);
+		});
+	}
+}
+// Helper functions
+function posMod(x, y) {
+	return (x + y) % y;
+}
+function collisionCheck(piece, cell) {
+	return cells[cell] !== " " && cells[cell] !== "_" && !piece.blocks.includes(cell) && cell >= 0;
+}
 // New game
 function newBag() {
 	const bag = ["I", "O", "T", "S", "Z", "J", "L"];
@@ -113,23 +178,11 @@ function newBag() {
 function newPosition(type, center, rotation = 0) {
 	return BLOCKS[type][type !== "O" ? rotation : 0].map(offset => center + offset);
 }
-function newTetronimo(type) {
-	changed = true;
-	current = {
-		type,
-		center: MID,
-		rotation: 0,
-		blocks: newPosition(type, MID + COLS)
-	};
-	fillBlocks(current.blocks, current.type);
-	updateGhost();
-	fillBlocks(current.ghostBlocks, "_");
-}
 export function newGame() {
 	cells = Array(CELL_AMOUNT).fill(" ");
 	queue = newBag();
 	held = null;
-	newTetronimo(queue.shift());
+	current = new Piece(queue.shift());
 	score = 0;
 	gameOver = false;
 	changed = true;
@@ -139,59 +192,18 @@ export function newGame() {
 	lockTimer = 0;
 	autorepeatTimer = 0;
 }
-// Helper functions
-function posMod(x, y) {
-	return (x + y) % y;
-}
-function fillBlocks(blocks, color) {
-	for (const block of blocks) {
-		cells[block] = color;
-	}
-}
-function collisionCheck(cell) {
-	return cells[cell] !== " " && cells[cell] !== "_" && !current.blocks.includes(cell) && cell >= 0;
-}
-function updateGhost() {
-	let center = current.center;
-	while (center < CELL_AMOUNT) {
-		center += COLS;
-		const position = newPosition(current.type, center, current.rotation);
-		if (position.some(cell => cell > CELL_AMOUNT - 1 || collisionCheck(cell))) {
-			center -= COLS;
+// Game mechanics
+function updateGhost(newPiece = current) {
+	let ghostCenter = newPiece.center;
+	while (ghostCenter < CELL_AMOUNT) {
+		ghostCenter += COLS;
+		const position = newPosition(newPiece.type, ghostCenter, newPiece.rotation);
+		if (position.some(cell => cell > CELL_AMOUNT - 1 || collisionCheck(newPiece, cell))) {
+			ghostCenter -= COLS;
 			break;
 		}
 	}
-	current.ghostCenter = center;
-	current.ghostBlocks = newPosition(current.type, current.ghostCenter, current.rotation);
-}
-function updateTetronimo(offset, rOffset = 0) {
-	const position = newPosition(current.type, current.center + offset, (current.rotation + rOffset) % 4);
-	if (position.some(cell => cell % COLS === 0 || cell > CELL_AMOUNT - 1 || collisionCheck(cell))) {
-		return false;
-	}
-	// Operations separated so upper blocks don't affect lower blocks
-	// Remove old piece
-	changed = true;
-	fillBlocks(current.blocks, " ");
-	if (offset % COLS !== 0 || rOffset !== 0) {
-		fillBlocks(current.ghostBlocks, " ");
-		if (lockTimer !== 0 && lockMoves < LOCK_MOVE_LIMIT) {
-			lockMoves++;
-			lockTimer = 0;
-		}
-	}
-	// Change state
-	current.blocks = position;
-	current.center += offset;
-	current.rotation += rOffset;
-	current.rotation %= 4;
-	// Add new piece
-	if (offset % COLS !== 0 || rOffset !== 0) {
-		updateGhost();
-		fillBlocks(current.ghostBlocks, "_");
-	}
-	fillBlocks(current.blocks, current.type);
-	return true;
+	ghost = new Piece(newPiece.type, ghostCenter, newPiece.rotation, true);
 }
 function lock() { // Returns whether the game is over
 	const rows = new Set(current.blocks.map(block => Math.floor(block / COLS)));
@@ -205,7 +217,7 @@ function lock() { // Returns whether the game is over
 			cells.unshift(...Array(COLS).fill(" "));
 		}
 	}
-	newTetronimo(queue.shift());
+	current = new Piece(queue.shift());
 	if (queue.length < NEXT_AMOUNT) {
 		queue.push(...newBag());
 	}
@@ -214,17 +226,6 @@ function lock() { // Returns whether the game is over
 	lockTimer = 0;
 	hasHeld = false;
 	return false;
-}
-function rotate(dr) {
-	if (current.type === "O") {
-		return;
-	}
-	const table = current.type === "I" ? I_OFFSETS : OFFSETS;
-	[0, 1, 2, 3, 4].some(i => {
-		const curOffset = table[current.rotation][i];
-		const newOffset = table[(current.rotation + dr) % 4][i];
-		return updateTetronimo(curOffset - newOffset, dr);
-	});
 }
 // Game loop
 export function onKeyDown(e) {
@@ -244,44 +245,42 @@ export function handle({key, location}) {
 	} else if (key === "r" || key === "R") {
 		newGame();
 	} else if (key === " ") {
-		updateTetronimo(current.ghostCenter - current.center);
+		current.update(ghost.center - current.center);
 		lock();
 	} else if (key === "X" || key === "x" || key === "ArrowUp") {
-		rotate(1); // Clockwise
+		current.rotate(1); // Clockwise
 	} else if (key === "Z" || key === "z") {
-		rotate(3); // Counterclockwise
+		current.rotate(3); // Counterclockwise
 	} else if (key === "A" || key === "a" || key === "Shift" && location === KeyboardEvent.DOM_KEY_LOCATION_LEFT) {
-		rotate(2); // 180°
+		current.rotate(2); // 180°
 	} else if (key === "C" || key === "c") {
 		if (hasHeld) {
 			return;
 		}
 		hasHeld = true;
-		fillBlocks(current.blocks, " ");
-		fillBlocks(current.ghostBlocks, " ");
-		const oldHeld = held;
-		held = current.type;
-		newTetronimo(oldHeld ?? queue.shift());
+		current.clear();
+		ghost.clear();
+		[held, current] = [current.type, new Piece(held ?? queue.shift())];
 	}
 }
 export function update() {
 	// Handle held keys
 	if (heldKeys.has("ArrowLeft") !== heldKeys.has("ArrowRight")) {
 		if (autorepeatTimer === 0) { // Move once before autorepeat
-			updateTetronimo(heldKeys.has("ArrowLeft") ? -1 : 1);
+			current.update(heldKeys.has("ArrowLeft") ? -1 : 1);
 		}
 		autorepeatTimer += 1;
 	} else {
 		autorepeatTimer = 0;
 	}
 	if (autorepeatTimer >= AUTOREPEAT_SPEED) {
-		updateTetronimo(heldKeys.has("ArrowLeft") ? -1 : 1);
+		current.update(heldKeys.has("ArrowLeft") ? -1 : 1);
 	}
 	if (heldKeys.has("ArrowDown")) {
-		updateTetronimo(COLS);
+		current.update(COLS);
 	}
 	// Update board
-	if (current.blocks.some(block => block + COLS > (CELL_AMOUNT - 1) || collisionCheck(block + COLS))) {
+	if (current.blocks.some(block => block + COLS > (CELL_AMOUNT - 1) || collisionCheck(current, block + COLS))) {
 		gravityTimer = 0;
 		lockTimer++;
 	} else {
@@ -289,7 +288,7 @@ export function update() {
 	}
 	if (gravityTimer >= GRAVITY_SPEED) {
 		gravityTimer = 0;
-		updateTetronimo(COLS);
+		current.update(COLS);
 	}
 	if (lockTimer >= LOCK_SPEED) {
 		gameOver ||= lock();
