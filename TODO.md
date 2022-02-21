@@ -35,16 +35,16 @@
 
 # Scoring
 - [x] Line clear
-	- [ ] Separate 1, 2, 3 line clear
-- [ ] Tetris
+	- [x] 1, 2, 3, 4 line clear (100, 300, 500, 800)
 - [ ] T-Spin
 	- [ ] 3-corner rule, 2-corner rule exceptions
 		- [ ] Super T-Spin Double (STSD)
 		- [ ] Fin T-Spin Double
-	- [ ] T-Spin 1, 2, 3 (clears that amount of lines)
-	- [ ] T-Spin mini 1, 2
+	- [ ] T-Spin 0, 1, 2, 3 (400, 800, 1200, 1600)
+	- [ ] T-Spin mini 0, 1, 2 (100, 200, 400)
 - [ ] Perfect Clears
-- [ ] Combos (line clears)
-- [ ] Back-to-backs (tetrises and t-spins)
+- [ ] Combos (line clears, 50 × combo length)
+- [ ] Back-to-backs (tetrises and t-spins, 1.5×)
+- [x] Soft/hard drop (1 or 2 points per cell)
 - [x] High scores
 	- [ ] LocalStorage

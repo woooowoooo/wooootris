@@ -64,6 +64,8 @@ const COLORS = {
 	"J": "hsl(230, 70%, 50%)",
 	"T": "hsl(300, 90%, 50%)"
 };
+// Scores
+const LINE_SCORES = [0, 100, 300, 500, 800];
 // Limits (speeds are in frames)
 const GRAVITY_SPEED = 60;
 const LOCK_MOVE_LIMIT = 10;
@@ -206,17 +208,19 @@ function updateGhost(newPiece = current) {
 	ghost = new Piece(newPiece.type, ghostCenter, newPiece.rotation, true);
 }
 function lock() { // Returns whether the game is over
-	const rows = new Set(current.blocks.map(block => Math.floor(block / COLS)));
-	if (rows.has(1)) {
+	const lines = new Set(current.blocks.map(block => Math.floor(block / COLS)));
+	let linesCleared = 0;
+	if (lines.has(1)) {
 		return true;
 	}
-	for (const row of rows) {
-		if (cells.slice(row * COLS + 1, (row + 1) * COLS).every(cell => cell !== " ")) {
-			score += 1;
-			cells.splice(row * COLS, COLS);
+	for (const line of lines) {
+		if (cells.slice(line * COLS + 1, (line + 1) * COLS).every(cell => cell !== " ")) {
+			linesCleared++;
+			cells.splice(line * COLS, COLS);
 			cells.unshift(...Array(COLS).fill(" "));
 		}
 	}
+	score += LINE_SCORES[linesCleared];
 	current = new Piece(queue.shift());
 	if (queue.length < NEXT_AMOUNT) {
 		queue.push(...newBag());
@@ -245,7 +249,9 @@ export function handle({key, location}) {
 	} else if (key === "r" || key === "R") {
 		newGame();
 	} else if (key === " ") {
-		current.update(ghost.center - current.center);
+		const offset = ghost.center - current.center;
+		current.update(offset);
+		score += 2 * (offset / COLS);
 		lock();
 	} else if (key === "X" || key === "x" || key === "ArrowUp") {
 		current.rotate(1); // Clockwise
@@ -269,7 +275,7 @@ export function update() {
 		if (autorepeatTimer === 0) { // Move once before autorepeat
 			current.update(heldKeys.has("ArrowLeft") ? -1 : 1);
 		}
-		autorepeatTimer += 1;
+		autorepeatTimer++;
 	} else {
 		autorepeatTimer = 0;
 	}
@@ -277,7 +283,8 @@ export function update() {
 		current.update(heldKeys.has("ArrowLeft") ? -1 : 1);
 	}
 	if (heldKeys.has("ArrowDown")) {
-		current.update(COLS);
+		const success = current.update(COLS);
+		score += success ? 1 : 0;
 	}
 	// Update board
 	if (current.blocks.some(block => block + COLS > (CELL_AMOUNT - 1) || collisionCheck(current, block + COLS))) {
@@ -320,8 +327,8 @@ export function render(context) {
 			context.fillRect(HELD_START_X + posMod(block + 1, COLS) * CELL_SIZE, QUEUE_START_Y + Math.floor((block + 1) / COLS + 1) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 		}
 	}
-	context.fontSize = 6;
+	context.fontSize = 5;
 	context.textAlign = "right";
 	context.fillStyle = "black";
-	context.fillText("Score " + score.toString().padStart(4, "0"), HELD_START_X + 5 * CELL_SIZE, SCORE_START_Y);
+	context.fillText("Score " + score.toString().padStart(6, "0"), HELD_START_X + 5 * CELL_SIZE, SCORE_START_Y);
 }
