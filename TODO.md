@@ -43,7 +43,7 @@
 	- [ ] T-Spin 0, 1, 2, 3 (400, 800, 1200, 1600)
 	- [ ] T-Spin mini 0, 1, 2 (100, 200, 400)
 - [x] Perfect Clears
-- [ ] Combos (line clears, 50 × combo length)
+- [x] Combos (line clears, 50 × combo length)
 - [ ] Back-to-backs (tetrises and t-spins, 1.5×)
 - [x] Soft/hard drop (1 or 2 points per cell)
 - [x] High scores

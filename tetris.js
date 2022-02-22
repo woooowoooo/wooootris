@@ -67,6 +67,7 @@ const COLORS = {
 // Scores
 const LINE_SCORES = [0, 100, 300, 500, 800];
 const PERFECT_CLEAR_SCORE = 3500;
+const COMBO_SCORE = 50;
 // Limits (speeds are in frames)
 const GRAVITY_SPEED = 60;
 const LOCK_MOVE_LIMIT = 10;
@@ -91,6 +92,7 @@ let held = null;
 let current = null;
 let ghost = null;
 let score = 0;
+let combo = 0;
 let gameOver = false;
 let changed = true;
 let hasHeld = false;
@@ -187,6 +189,7 @@ export function newGame() {
 	held = null;
 	current = new Piece(queue.shift());
 	score = 0;
+	combo = 0;
 	gameOver = false;
 	changed = true;
 	hasHeld = false;
@@ -226,6 +229,12 @@ function lock() { // Returns whether the game is over
 	score += LINE_SCORES[linesCleared];
 	if (cells.every(cell => cell === " ")) {
 		score += PERFECT_CLEAR_SCORE;
+	}
+	if (linesCleared > 0) {
+		score += combo * COMBO_SCORE;
+		combo++;
+	} else {
+		combo = 0;
 	}
 	// New piece
 	current = new Piece(queue.shift());
