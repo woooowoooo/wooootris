@@ -51,6 +51,7 @@ function wrapClickEvent(callback, condition = (() => true)) {
 	canvas.addEventListener("click", fullCallback);
 	return fullCallback;
 }
+canvas.addEventListener("click", getMousePosition);
 // Classes
 class Drawable {
 	constructor (draw) {
@@ -109,14 +110,6 @@ class TextButton extends Button {
 		super(hitbox, draw, callback, ignorePause);
 	}
 }
-// Noting input
-window.addEventListener("keydown", e => {
-	console.log(`The "${e.key}" key was pressed.`);
-});
-canvas.addEventListener("click", e => {
-	getMousePosition(e);
-	console.log("The mouse was clicked on " + mouse.x + ", " + mouse.y + ".");
-});
 // Loading assets
 async function loadResources() {
 	const imageNames = ["start", "main", "credits", "buttonStart", "buttonMiddle", "buttonEnd", "soundOn", "soundOff"];
