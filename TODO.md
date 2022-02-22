@@ -40,12 +40,12 @@
 # Scoring
 - [x] Line clear
 	- [x] 1, 2, 3, 4 line clear (100, 300, 500, 800)
-- [ ] T-Spin
-	- [ ] 3-corner rule, 2-corner rule exceptions
-		- [ ] Super T-Spin Double (STSD)
-		- [ ] Fin T-Spin Double
-	- [ ] T-Spin 0, 1, 2, 3 (400, 800, 1200, 1600)
-	- [ ] T-Spin mini 0, 1, 2 (100, 200, 400)
+- [x] T-Spin
+	- [x] 3-corner rule
+		- [x] T-Spin 0, 1, 2, 3 (400, 800, 1200, 1600)
+	- [x] 2-corner rule
+		- [x] T-Spin mini 0, 1, 2 (100, 200, 400)
+		- [ ] 2-corner rule exceptions (Super TSD, Fin TSD)
 - [x] Perfect Clears
 - [x] Combos (line clears, 50 × combo length)
 - [ ] Back-to-backs (tetrises and t-spins, 1.5×)

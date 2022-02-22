@@ -66,6 +66,8 @@ const COLORS = {
 };
 // Scores
 const LINE_SCORES = [0, 100, 300, 500, 800];
+const T_SPIN_MINI_SCORES = [100, 200, 400];
+const T_SPIN_SCORES = [400, 800, 1200, 1600];
 const PERFECT_CLEAR_SCORE = 3500;
 const COMBO_SCORE = 50;
 // Limits (speeds are in frames)
@@ -93,6 +95,7 @@ let current = null;
 let ghost = null;
 let score = 0;
 let combo = 0;
+let tSpin = false;
 let gameOver = false;
 let changed = true;
 let hasHeld = false;
@@ -129,8 +132,9 @@ class Piece {
 			return false;
 		}
 		// Operations separated so upper blocks don't affect lower blocks
-		// Remove old piece
 		changed = true;
+		tSpin = this.type === "T" && rOffset !== 0;
+		// Remove old piece
 		this.clear();
 		if (offset % COLS !== 0 || rOffset !== 0) {
 			ghost.clear();
@@ -190,6 +194,7 @@ export function newGame() {
 	current = new Piece(queue.shift());
 	score = 0;
 	combo = 0;
+	tSpin = false;
 	gameOver = false;
 	changed = true;
 	hasHeld = false;
@@ -211,30 +216,42 @@ function updateGhost(newPiece = current) {
 	}
 	ghost = new Piece(newPiece.type, ghostCenter, newPiece.rotation, true);
 }
+function scoreMove(linesCleared) {
+	if (tSpin) {
+		const corners = [-COLS - 1, -COLS + 1, COLS + 1, COLS - 1].map(offset => current.center + offset);
+		const filled = corners.map(cell => cells[cell] !== " ");
+		if (filled.filter(Boolean).length >= 3) { // 3-corner rule
+			const facing = [current.rotation, (current.rotation + 1) % 4].filter(corner => filled[corner]);
+			if (facing.length === 2) { // 2-corner rule
+				return T_SPIN_SCORES[linesCleared];
+			}
+			return T_SPIN_MINI_SCORES[linesCleared];
+		}
+	}
+	return LINE_SCORES[linesCleared];
+}
 function lock() { // Returns whether the game is over
-	// Clear lines
+	// Count full lines
 	const lines = new Set(current.blocks.map(block => Math.floor(block / COLS)));
-	let linesCleared = 0;
 	if (lines.has(1)) {
 		return true;
 	}
-	for (const line of lines) {
-		if (cells.slice(line * COLS + 1, (line + 1) * COLS).every(cell => cell !== " ")) {
-			linesCleared++;
-			cells.splice(line * COLS, COLS);
-			cells.unshift(...Array(COLS).fill(" "));
-		}
-	}
+	const fullLines = [...lines].filter(line => cells.slice(line * COLS + 1, (line + 1) * COLS).every(cell => cell !== " "));
 	// Update score
-	score += LINE_SCORES[linesCleared];
+	score += scoreMove(fullLines.length);
 	if (cells.every(cell => cell === " ")) {
 		score += PERFECT_CLEAR_SCORE;
 	}
-	if (linesCleared > 0) {
+	if (fullLines.length > 0) {
 		score += combo * COMBO_SCORE;
 		combo++;
 	} else {
 		combo = 0;
+	}
+	// Clear lines
+	for (const line of fullLines) {
+		cells.splice(line * COLS, COLS);
+		cells.unshift(...Array(COLS).fill(" "));
 	}
 	// New piece
 	current = new Piece(queue.shift());
