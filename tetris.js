@@ -66,6 +66,7 @@ const COLORS = {
 };
 // Scores
 const LINE_SCORES = [0, 100, 300, 500, 800];
+const PERFECT_CLEAR_SCORE = 3500;
 // Limits (speeds are in frames)
 const GRAVITY_SPEED = 60;
 const LOCK_MOVE_LIMIT = 10;
@@ -208,6 +209,7 @@ function updateGhost(newPiece = current) {
 	ghost = new Piece(newPiece.type, ghostCenter, newPiece.rotation, true);
 }
 function lock() { // Returns whether the game is over
+	// Clear lines
 	const lines = new Set(current.blocks.map(block => Math.floor(block / COLS)));
 	let linesCleared = 0;
 	if (lines.has(1)) {
@@ -220,7 +222,12 @@ function lock() { // Returns whether the game is over
 			cells.unshift(...Array(COLS).fill(" "));
 		}
 	}
+	// Update score
 	score += LINE_SCORES[linesCleared];
+	if (cells.every(cell => cell === " ")) {
+		score += PERFECT_CLEAR_SCORE;
+	}
+	// New piece
 	current = new Piece(queue.shift());
 	if (queue.length < NEXT_AMOUNT) {
 		queue.push(...newBag());
