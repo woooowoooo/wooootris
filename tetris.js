@@ -69,6 +69,7 @@ const LINE_SCORES = [0, 100, 300, 500, 800];
 const T_SPIN_MINI_SCORES = [100, 200, 400];
 const T_SPIN_SCORES = [400, 800, 1200, 1600];
 const PERFECT_CLEAR_SCORE = 3500;
+const BACK_TO_BACK_MULTIPLIER = 1.5;
 const COMBO_SCORE = 50;
 // Limits (speeds are in frames)
 const GRAVITY_SPEED = 60;
@@ -96,6 +97,7 @@ let ghost = null;
 let score = 0;
 let combo = 0;
 let tSpin = false;
+let hardMove = false;
 let gameOver = false;
 let changed = true;
 let hasHeld = false;
@@ -195,6 +197,7 @@ export function newGame() {
 	score = 0;
 	combo = 0;
 	tSpin = false;
+	hardMove = false;
 	gameOver = false;
 	changed = true;
 	hasHeld = false;
@@ -221,12 +224,16 @@ function scoreMove(linesCleared) {
 		const corners = [-COLS - 1, -COLS + 1, COLS + 1, COLS - 1].map(offset => current.center + offset);
 		const filled = corners.map(cell => cells[cell] !== " ");
 		if (filled.filter(Boolean).length >= 3) { // 3-corner rule
+			hardMove = true;
 			const facing = [current.rotation, (current.rotation + 1) % 4].filter(corner => filled[corner]);
 			if (facing.length === 2) { // 2-corner rule
 				return T_SPIN_SCORES[linesCleared];
 			}
 			return T_SPIN_MINI_SCORES[linesCleared];
 		}
+	}
+	if (linesCleared > 0) {
+		hardMove = linesCleared === 4;
 	}
 	return LINE_SCORES[linesCleared];
 }
@@ -238,7 +245,8 @@ function lock() { // Returns whether the game is over
 	}
 	const fullLines = [...lines].filter(line => cells.slice(line * COLS + 1, (line + 1) * COLS).every(cell => cell !== " "));
 	// Update score
-	score += scoreMove(fullLines.length);
+	const backToBack = hardMove;
+	score += ((backToBack && hardMove && fullLines.length > 0) ? BACK_TO_BACK_MULTIPLIER : 1) * scoreMove(fullLines.length);
 	if (cells.every(cell => cell === " ")) {
 		score += PERFECT_CLEAR_SCORE;
 	}
