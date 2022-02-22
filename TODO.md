@@ -11,6 +11,16 @@
 - [x] Gravity
 	- [x] Collision detection
 	- [x] Reduce frame speed
+- [x] Death
+	- [x] Return scores
+	- [x] Retry (R)
+- [ ] Modes
+	- [ ] 40 lines (sprint)
+	- [ ] Regular
+		- [ ] Levels
+		- [ ] Speed up gravity over time
+
+## Movement Controls
 - [x] Moving pieces (Left, Right)
 	- [x] Locking
 - [x] Super Rotation System
@@ -19,16 +29,10 @@
 - [x] Drops
 	- [x] Hard (Space)
 	- [x] Soft (Down)
-- [x] Death
-	- [x] Retry (R)
-- [ ] Modes
-	- [ ] 40 lines (sprint)
-	- [ ] Regular
-		- [ ] Levels
-		- [ ] Speed up gravity over time
 
-## Handling
+## Movement Settings
 (in frames) (SDF is a multiplier to gravity)
+- [ ] Lock to 60 fps
 - [ ] Automatic Repeat Rate: How fast the pieces move left and right
 - [x] Delayed Auto Shift: How long it takes for ARR to happen
 - [ ] Soft Drop Factor: How fast does soft drop happen
