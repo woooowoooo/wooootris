@@ -14,7 +14,7 @@ const images = {};
 const sounds = {};
 let paused = false;
 let muted = false;
-let highScore = 0;
+let highScore = localStorage.getItem("wooootrisHighScore") ?? 0;
 const objects = new Map();
 // Helper functions
 Object.defineProperty(context, "fontSize", {
@@ -251,6 +251,7 @@ function loop() {
 	const [changed, gameOver, score] = update();
 	if (gameOver) {
 		highScore = Math.max(score, highScore);
+		localStorage.setItem("wooootrisHighScore", highScore);
 		stateMachine.lose(score);
 	}
 	if (changed) { // If board has updated

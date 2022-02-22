@@ -51,4 +51,4 @@
 - [x] Combos (line clears, 50 × combo length)
 - [x] Soft/hard drop (1 or 2 points per cell)
 - [x] High scores
-	- [ ] LocalStorage
+	- [x] LocalStorage
