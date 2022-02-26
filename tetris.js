@@ -83,10 +83,10 @@ const START_X = (1920 - TCOLS * CELL_SIZE) / 2;
 const START_Y = (1280 - ROWS * CELL_SIZE) / 2;
 const NEXT_AMOUNT = 6;
 const QUEUE_GAP = 180;
-const QUEUE_START_X = START_X + TCOLS * CELL_SIZE + 150;
+const QUEUE_CENTER_X = START_X + TCOLS * CELL_SIZE + 300;
 const QUEUE_START_Y = (1280 - (NEXT_AMOUNT - 1) * QUEUE_GAP - 2 * CELL_SIZE) / 2;
-const HELD_START_X = START_X - 4 * CELL_SIZE - 150;
-const SCORE_START_Y = QUEUE_START_Y + 2 * CELL_SIZE + QUEUE_GAP;
+const HELD_CENTER_X = START_X - 300;
+const SCORE_START_Y = QUEUE_START_Y + 3 * CELL_SIZE + QUEUE_GAP;
 // State variables
 const heldKeys = new Set();
 let cells = Array(CELL_AMOUNT).fill(" ");
@@ -171,8 +171,13 @@ class Piece {
 	}
 }
 // Helper functions
-function posMod(x, y) {
-	return (x + y) % y;
+function displayPiece(context, type, x, y) {
+	x -= CELL_SIZE * (type === "I" || type === "O" ? 1 : 0.5);
+	y += CELL_SIZE * (type === "I" ? 0.5 : 1);
+	context.fillStyle = COLORS[type];
+	for (const block of BLOCKS[type][0]) {
+		context.fillRect(x + ((block + MID + COLS) % COLS - MID) * CELL_SIZE, y + Math.round(block / COLS) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+	}
 }
 function collisionCheck(piece, cell) {
 	return cells[cell] !== " " && cells[cell] !== "_" && !piece.blocks.includes(cell) && cell >= 0;
@@ -353,23 +358,17 @@ export function render(context) {
 		}
 	}
 	context.fillStyle = "hsl(30, 5%, 80%)";
-	context.fillRect(QUEUE_START_X - CELL_SIZE, QUEUE_START_Y - CELL_SIZE, 6 * CELL_SIZE, NEXT_AMOUNT * QUEUE_GAP + CELL_SIZE);
+	context.fillRect(QUEUE_CENTER_X - 2.5 * CELL_SIZE, QUEUE_START_Y - CELL_SIZE, 5 * CELL_SIZE, NEXT_AMOUNT * QUEUE_GAP + CELL_SIZE);
 	for (const [position, tetromino] of Array.from(queue.entries()).slice(0, NEXT_AMOUNT)) {
-		context.fillStyle = COLORS[tetromino];
-		for (const block of BLOCKS[tetromino][0]) {
-			context.fillRect(QUEUE_START_X + posMod(block + 1, COLS) * CELL_SIZE, QUEUE_START_Y + QUEUE_GAP * position + Math.floor((block + 1) / COLS + 1) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-		}
+		displayPiece(context, tetromino, QUEUE_CENTER_X, QUEUE_START_Y + QUEUE_GAP * position);
 	}
 	context.fillStyle = "hsl(30, 5%, 80%)";
-	context.fillRect(HELD_START_X - CELL_SIZE, QUEUE_START_Y - CELL_SIZE, 6 * CELL_SIZE, 4 * CELL_SIZE);
+	context.fillRect(HELD_CENTER_X - 2.5 * CELL_SIZE, QUEUE_START_Y, 5 * CELL_SIZE, 4 * CELL_SIZE);
 	if (held != null) {
-		context.fillStyle = COLORS[held];
-		for (const block of BLOCKS[held][0]) {
-			context.fillRect(HELD_START_X + posMod(block + 1, COLS) * CELL_SIZE, QUEUE_START_Y + Math.floor((block + 1) / COLS + 1) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-		}
+		displayPiece(context, held, HELD_CENTER_X, QUEUE_START_Y + CELL_SIZE);
 	}
 	context.fontSize = 5;
 	context.textAlign = "right";
 	context.fillStyle = "black";
-	context.fillText("Score " + score.toString().padStart(6, "0"), HELD_START_X + 5 * CELL_SIZE, SCORE_START_Y);
+	context.fillText("Score " + score.toString().padStart(6, "0"), HELD_CENTER_X + 4 * CELL_SIZE, SCORE_START_Y);
 }
