@@ -1,3 +1,9 @@
+# Menu
+- [x] Tetris background
+- [ ] Graphic title
+- [ ] Settings
+- [x] Credits
+
 # Gameplay
 - [x] Grid
 	- [x] Hidden rows at top

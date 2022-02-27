@@ -145,6 +145,11 @@ const stateMachine = new StateMachine({
 			to: "main"
 		},
 		{
+			name: "toSettings",
+			from: "menu",
+			to: "settings"
+		},
+		{
 			name: "toCredits",
 			from: "menu",
 			to: "credits"
@@ -191,15 +196,25 @@ const stateMachine = new StateMachine({
 		onMenu() {
 			clear();
 			sounds.mainTheme.play();
-			objects.set("start", new TextButton(960, 720, "Start", stateMachine.start, 576));
-			objects.set("credits", new TextButton(960, 912, "Credits", stateMachine.toCredits, 576));
 			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
+			objects.set("start", new TextButton(960, 640, "Start", stateMachine.start, 640));
+			objects.set("settings", new TextButton(960, 800, "Settings", stateMachine.toSettings, 640));
+			objects.set("credits", new TextButton(960, 960, "Credits", stateMachine.toCredits, 640));
+			objects.set(muted ? "unmute" : "mute", new MuteButton());
+		},
+		onSettings() {
+			clear();
+			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
+			objects.set("settings", new Drawable(() => {
+				// TODO
+			}));
+			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set(muted ? "unmute" : "mute", new MuteButton());
 		},
 		onCredits() {
 			clear();
-			objects.set("return", new TextButton(960, 912, "Return", stateMachine.toMenu, 576));
 			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
+			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set(muted ? "unmute" : "mute", new MuteButton());
 		},
 		onMain() {
