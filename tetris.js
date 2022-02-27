@@ -77,13 +77,15 @@ const GRAVITY_SPEED = 60;
 const LOCK_MOVE_LIMIT = 10;
 const LOCK_SPEED = 40;
 const AUTOREPEAT_SPEED = 8; // Speed to start autorepeat, not speed of autorepeat
-// Position constants
+// Graphic constants
 const CELL_SIZE = 60;
 const CELL_AMOUNT = COLS * (ROWS + 2);
 const START_X = (1920 - TCOLS * CELL_SIZE) / 2;
 const START_Y = (1280 - ROWS * CELL_SIZE) / 2;
+const OUTLINE_WIDTH = 8;
 const NEXT_AMOUNT = 6;
 const QUEUE_GAP = 180;
+const QUEUE_WIDTH = 2.5 * CELL_SIZE;
 const QUEUE_CENTER_X = START_X + TCOLS * CELL_SIZE + 300;
 const QUEUE_START_Y = (1280 - (NEXT_AMOUNT - 1) * QUEUE_GAP - 2 * CELL_SIZE) / 2;
 const HELD_CENTER_X = START_X - 300;
@@ -350,26 +352,29 @@ export function update() {
 	return [changed, gameOver, score];
 }
 export function render(context) {
-	context.fillStyle = "hsl(30, 5%, 20%)";
+	context.fillStyle = "white";
+	context.fillRect(START_X - OUTLINE_WIDTH, START_Y - OUTLINE_WIDTH, TCOLS * CELL_SIZE + 2 * OUTLINE_WIDTH, ROWS * CELL_SIZE + 2 * OUTLINE_WIDTH);
+	context.fillRect(QUEUE_CENTER_X - QUEUE_WIDTH - OUTLINE_WIDTH, QUEUE_START_Y - CELL_SIZE - OUTLINE_WIDTH, 2 * (QUEUE_WIDTH + OUTLINE_WIDTH), NEXT_AMOUNT * QUEUE_GAP + CELL_SIZE + 2 * OUTLINE_WIDTH);
+	context.fillRect(HELD_CENTER_X - QUEUE_WIDTH - OUTLINE_WIDTH, QUEUE_START_Y - OUTLINE_WIDTH, 2 * (QUEUE_WIDTH + OUTLINE_WIDTH), 4 * CELL_SIZE + 2 * OUTLINE_WIDTH);
+	context.fillStyle = "hsl(30, 5%, 15%)";
 	context.fillRect(START_X, START_Y, TCOLS * CELL_SIZE, ROWS * CELL_SIZE);
+	context.fillStyle = "hsl(30, 5%, 85%)";
+	context.fillRect(QUEUE_CENTER_X - QUEUE_WIDTH, QUEUE_START_Y - CELL_SIZE, 2 * QUEUE_WIDTH, NEXT_AMOUNT * QUEUE_GAP + CELL_SIZE);
+	context.fillRect(HELD_CENTER_X - QUEUE_WIDTH, QUEUE_START_Y, 2 * QUEUE_WIDTH, 4 * CELL_SIZE);
 	for (const [position, cell] of cells.entries()) {
 		if (cell !== " ") {
 			context.fillStyle = COLORS[cell];
 			context.fillRect(START_X + (position % COLS - 1) * CELL_SIZE, START_Y + Math.floor(position / COLS - 2) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 		}
 	}
-	context.fillStyle = "hsl(30, 5%, 80%)";
-	context.fillRect(QUEUE_CENTER_X - 2.5 * CELL_SIZE, QUEUE_START_Y - CELL_SIZE, 5 * CELL_SIZE, NEXT_AMOUNT * QUEUE_GAP + CELL_SIZE);
 	for (const [position, tetromino] of Array.from(queue.entries()).slice(0, NEXT_AMOUNT)) {
 		displayPiece(context, tetromino, QUEUE_CENTER_X, QUEUE_START_Y + QUEUE_GAP * position);
 	}
-	context.fillStyle = "hsl(30, 5%, 80%)";
-	context.fillRect(HELD_CENTER_X - 2.5 * CELL_SIZE, QUEUE_START_Y, 5 * CELL_SIZE, 4 * CELL_SIZE);
 	if (held != null) {
 		displayPiece(context, held, HELD_CENTER_X, QUEUE_START_Y + CELL_SIZE);
 	}
 	context.fontSize = 5;
 	context.textAlign = "right";
-	context.fillStyle = "black";
+	context.fillStyle = "white";
 	context.fillText("Score " + score.toString().padStart(6, "0"), HELD_CENTER_X + 4 * CELL_SIZE, SCORE_START_Y);
 }
