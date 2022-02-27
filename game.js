@@ -197,6 +197,11 @@ const stateMachine = new StateMachine({
 			clear();
 			sounds.mainTheme.play();
 			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
+			objects.set("title", new Drawable(() => {
+				context.fillStyle = "white";
+				context.fontSize = 20;
+				context.fillText("wooootris", 960, 420);
+			}));
 			objects.set("start", new TextButton(960, 640, "Start", stateMachine.start, 640));
 			objects.set("settings", new TextButton(960, 800, "Settings", stateMachine.toSettings, 640));
 			objects.set("credits", new TextButton(960, 960, "Credits", stateMachine.toCredits, 640));
