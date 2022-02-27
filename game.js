@@ -112,7 +112,7 @@ class TextButton extends Button {
 }
 // Loading assets
 async function loadResources() {
-	const imageNames = ["start", "main", "credits", "buttonStart", "buttonMiddle", "buttonEnd", "soundOn", "soundOff"];
+	const imageNames = ["background", "buttonStart", "buttonMiddle", "buttonEnd", "soundOn", "soundOff"];
 	const soundNames = ["mainTheme"];
 	const promises = [];
 	const initialize = function (cache, id, path, type, eventType) {
@@ -191,15 +191,15 @@ const stateMachine = new StateMachine({
 		onMenu() {
 			clear();
 			sounds.mainTheme.play();
-			objects.set("background", new Drawable(() => context.drawImage(images.start, 0, 0, 1920, 1280)));
 			objects.set("start", new TextButton(960, 720, "Start", stateMachine.start, 576));
 			objects.set("credits", new TextButton(960, 912, "Credits", stateMachine.toCredits, 576));
+			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
 			objects.set(muted ? "unmute" : "mute", new MuteButton());
 		},
 		onCredits() {
 			clear();
-			objects.set("background", new Drawable(() => context.drawImage(images.credits, 0, 0, 1920, 1280)));
 			objects.set("return", new TextButton(960, 912, "Return", stateMachine.toMenu, 576));
+			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
 			objects.set(muted ? "unmute" : "mute", new MuteButton());
 		},
 		onMain() {
@@ -207,7 +207,7 @@ const stateMachine = new StateMachine({
 			newGame();
 			window.addEventListener("keydown", onKeyDown);
 			window.addEventListener("keyup", onKeyUp);
-			objects.set("background", new Drawable(() => context.drawImage(images.main, 0, 0, 1920, 1280)));
+			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
 			objects.set(muted ? "unmute" : "mute", new MuteButton());
 			objects.set("tetris", new Drawable(() => tetrisRender(context)));
 			requestAnimationFrame(loop);
