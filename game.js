@@ -219,6 +219,14 @@ const stateMachine = new StateMachine({
 		onCredits() {
 			clear();
 			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
+			objects.set("credits", new Drawable(() => {
+				context.fillStyle = "white";
+				context.fontSize = 8;
+				context.fillText("Everything", 960, 360);
+				context.fillText("woooowoooo", 960, 440);
+				context.fillText("Inspiration and testing", 960, 640);
+				context.fillText("yayuuuhhhh", 960, 720);
+			}));
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set(muted ? "unmute" : "mute", new MuteButton());
 		},
