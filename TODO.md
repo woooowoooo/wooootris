@@ -1,13 +1,13 @@
 # Menu
 - [x] Tetris background
 - [ ] Graphic title
-- [ ] Settings
+- [x] Settings
 - [x] Credits
 
 # Gameplay
 - [x] Grid
 	- [x] Hidden rows at top
-	- [ ] Visible lines
+	- [x] Visible lines
 - [x] Pieces
 	- [x] 7bag
 	- [x] Upcoming pieces

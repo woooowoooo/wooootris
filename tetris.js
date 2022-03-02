@@ -83,6 +83,7 @@ const CELL_AMOUNT = COLS * (ROWS + 2);
 const START_X = (1920 - TCOLS * CELL_SIZE) / 2;
 const START_Y = (1280 - ROWS * CELL_SIZE) / 2;
 const OUTLINE_WIDTH = 8;
+const GRID_WIDTH = 4;
 const NEXT_AMOUNT = 6;
 const QUEUE_GAP = 180;
 const QUEUE_WIDTH = 2.5 * CELL_SIZE;
@@ -91,6 +92,10 @@ const QUEUE_START_Y = (1280 - (NEXT_AMOUNT - 1) * QUEUE_GAP - 2 * CELL_SIZE) / 2
 const HELD_CENTER_X = START_X - 300;
 const SCORE_START_Y = QUEUE_START_Y + 3 * CELL_SIZE + QUEUE_GAP;
 const TEXT_LINE_HEIGHT = CELL_SIZE;
+// Settings
+let settings = {
+	grid: false
+};
 // State variables
 const heldKeys = new Set();
 let cells = Array(CELL_AMOUNT).fill(" ");
@@ -187,6 +192,9 @@ function displayPiece(context, type, x, y) {
 function collisionCheck(piece, cell) {
 	return cells[cell] !== " " && cells[cell] !== "_" && !piece.blocks.includes(cell) && cell >= 0;
 }
+export function getSettings() {
+	return settings;
+}
 // New game
 function newBag() {
 	const bag = ["I", "O", "T", "S", "Z", "J", "L"];
@@ -200,10 +208,12 @@ function newPosition(type, center, rotation = 0) {
 	return BLOCKS[type][type !== "O" ? rotation : 0].map(offset => center + offset);
 }
 export function newGame(newHigh = highScore) {
+	settings = newSettings;
 	cells = Array(CELL_AMOUNT).fill(" ");
 	queue = newBag();
 	held = null;
 	current = new Piece(queue.shift());
+	flavorText = null;
 	score = 0;
 	highScore = newHigh;
 	combo = 0;
@@ -367,6 +377,15 @@ export function render(context) {
 	context.fillStyle = "hsl(30, 5%, 85%)";
 	context.fillRect(QUEUE_CENTER_X - QUEUE_WIDTH, QUEUE_START_Y - CELL_SIZE, 2 * QUEUE_WIDTH, NEXT_AMOUNT * QUEUE_GAP + CELL_SIZE);
 	context.fillRect(HELD_CENTER_X - QUEUE_WIDTH, QUEUE_START_Y, 2 * QUEUE_WIDTH, 4 * CELL_SIZE);
+	if (settings.grid) {
+		context.fillStyle = "hsla(0, 0%, 100%, 10%)";
+		for (let i = 1; i < TCOLS; i++) {
+			context.fillRect(START_X + i * CELL_SIZE - GRID_WIDTH / 2, START_Y, GRID_WIDTH, ROWS * CELL_SIZE);
+		}
+		for (let i = 1; i < ROWS; i++) {
+			context.fillRect(START_X, START_Y + i * CELL_SIZE - GRID_WIDTH / 2, TCOLS * CELL_SIZE, GRID_WIDTH);
+		}
+	}
 	for (const [position, cell] of cells.entries()) {
 		if (cell !== " ") {
 			context.fillStyle = COLORS[cell];

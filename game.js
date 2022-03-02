@@ -1,5 +1,5 @@
 import StateMachine from "./state-machine/module.js";
-import {onKeyDown, onKeyUp, update, render as tetrisRender, newGame} from "./tetris.js";
+import {getSettings, newGame, onKeyDown, onKeyUp, update, render as tetrisRender} from "./tetris.js";
 const canvas = document.getElementById("game");
 canvas.width = 1920;
 canvas.height = 1280;
@@ -14,8 +14,9 @@ const images = {};
 const sounds = {};
 let paused = false;
 let muted = false;
-let highScore = localStorage.getItem("wooootrisHighScore") ?? 0;
 const objects = new Map();
+let settings = getSettings();
+let highScore = localStorage.getItem("wooootrisHighScore") ?? 0;
 // Helper functions
 Object.defineProperty(context, "fontSize", {
 	set: size => {
@@ -210,9 +211,12 @@ const stateMachine = new StateMachine({
 		onSettings() {
 			clear();
 			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
-			objects.set("settings", new Drawable(() => {
-				// TODO
+			settings = getSettings();
+			objects.set("text", new Drawable(() => {
+				context.fillStyle = "white";
+				context.fillText("Grid:", 640, 320 + 92);
 			}));
+			objects.set("gridButton", new TextButton(1280, 320, "Grid", () => settings.grid = !settings.grid, 400));
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set(muted ? "unmute" : "mute", new MuteButton());
 		},
