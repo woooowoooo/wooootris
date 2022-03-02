@@ -90,6 +90,7 @@ const QUEUE_CENTER_X = START_X + TCOLS * CELL_SIZE + 300;
 const QUEUE_START_Y = (1280 - (NEXT_AMOUNT - 1) * QUEUE_GAP - 2 * CELL_SIZE) / 2;
 const HELD_CENTER_X = START_X - 300;
 const SCORE_START_Y = QUEUE_START_Y + 3 * CELL_SIZE + QUEUE_GAP;
+const TEXT_LINE_HEIGHT = CELL_SIZE;
 // State variables
 const heldKeys = new Set();
 let cells = Array(CELL_AMOUNT).fill(" ");
@@ -98,6 +99,7 @@ let held = null;
 let current = null;
 let ghost = null;
 let score = 0;
+let highScore = 0;
 let combo = 0;
 let tSpin = false;
 let hardMove = false;
@@ -197,12 +199,13 @@ function newBag() {
 function newPosition(type, center, rotation = 0) {
 	return BLOCKS[type][type !== "O" ? rotation : 0].map(offset => center + offset);
 }
-export function newGame() {
+export function newGame(newHigh = highScore) {
 	cells = Array(CELL_AMOUNT).fill(" ");
 	queue = newBag();
 	held = null;
 	current = new Piece(queue.shift());
 	score = 0;
+	highScore = newHigh;
 	combo = 0;
 	tSpin = false;
 	hardMove = false;
@@ -297,7 +300,9 @@ export function handle({key, location}) {
 		gameOver = true;
 		heldKeys.clear();
 	} else if (key === "r" || key === "R") {
-		newGame();
+		highScore = Math.max(score, highScore);
+		localStorage.setItem("wooootrisHighScore", highScore);
+		newGame(Math.max(score, highScore));
 	} else if (key === " ") {
 		const offset = ghost.center - current.center;
 		current.update(offset);
@@ -377,5 +382,15 @@ export function render(context) {
 	context.fontSize = 5;
 	context.textAlign = "right";
 	context.fillStyle = "white";
-	context.fillText("Score " + score.toString().padStart(6, "0"), HELD_CENTER_X + 4 * CELL_SIZE, SCORE_START_Y);
+	const texts = [
+		"Score " + score.toString().padStart(6, "0"),
+		"HScore " + highScore.toString().padStart(6, "0"),
+		"Combo " + combo.toString().padStart(6),
+		"B2B " + hardMove.toString().padStart(6)
+	];
+	let textY = SCORE_START_Y;
+	for (const text of texts) {
+		context.fillText(text, HELD_CENTER_X + 4 * CELL_SIZE, textY);
+		textY += TEXT_LINE_HEIGHT;
+	}
 }
