@@ -1,8 +1,27 @@
-# Menu
+# Experience
 - [x] Tetris background
-- [ ] Graphic title
-- [x] Settings
+- [x] Main Menu
+	- [ ] Graphic title
+- [ ] Ingame
+	- [x] Center queued pieces
+	- [x] Show score effects (combo, b2b)
+	- [ ] Temporarily show last move
+	- [x] Game over screen
+- [ ] Settings
+	- [ ] Volume sliders
+	- [ ] Column amount
+	- [x] Grid toggle
+	- [ ] Skins
+	- [ ] Movement settings
+		- [ ] Automatic Repeat Rate
+		- [ ] Delayed Auto Shift
+		- [ ] Soft Drop Factor
 - [x] Credits
+
+## Sounds
+- [ ] More fitting music
+- [ ] Lock sound
+- [ ] Death sound
 
 # Gameplay
 - [x] Grid
@@ -13,7 +32,6 @@
 	- [x] Upcoming pieces
 	- [x] Hold piece (C)
 	- [x] Ghost piece
-	- [ ] Skins
 - [x] Gravity
 	- [x] Collision detection
 	- [x] Reduce frame speed
@@ -25,6 +43,7 @@
 	- [ ] Regular
 		- [ ] Levels
 		- [ ] Speed up gravity over time
+- [ ] Lock to 60 fps
 
 ## Movement Controls
 - [x] Moving pieces (Left, Right)
@@ -36,12 +55,6 @@
 	- [x] Hard (Space)
 	- [x] Soft (Down)
 
-## Movement Settings
-(in frames) (SDF is a multiplier to gravity)
-- [ ] Lock to 60 fps
-- [ ] Automatic Repeat Rate: How fast the pieces move left and right
-- [x] Delayed Auto Shift: How long it takes for ARR to happen
-- [ ] Soft Drop Factor: How fast does soft drop happen
 
 # Scoring
 - [x] Line clear
