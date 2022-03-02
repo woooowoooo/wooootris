@@ -255,9 +255,6 @@ function lock() { // Returns whether the game is over
 	// Update score
 	const backToBack = hardMove;
 	score += ((backToBack && hardMove && fullLines.length > 0) ? BACK_TO_BACK_MULTIPLIER : 1) * scoreMove(fullLines.length);
-	if (cells.every(cell => cell === " ")) {
-		score += PERFECT_CLEAR_SCORE;
-	}
 	if (fullLines.length > 0) {
 		score += combo * COMBO_SCORE;
 		combo++;
@@ -268,6 +265,10 @@ function lock() { // Returns whether the game is over
 	for (const line of fullLines) {
 		cells.splice(line * COLS, COLS);
 		cells.unshift(...Array(COLS).fill(" "));
+	}
+	// Perfect clear bonus
+	if (cells.every(cell => cell === " ")) {
+		score += PERFECT_CLEAR_SCORE;
 	}
 	// New piece
 	current = new Piece(queue.shift());
