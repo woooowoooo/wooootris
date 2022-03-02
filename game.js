@@ -1,5 +1,5 @@
 import StateMachine from "./state-machine/module.js";
-import {getSettings, newGame, onKeyDown, onKeyUp, update, render as tetrisRender} from "./tetris.js";
+import {newGame, onKeyDown, onKeyUp, update, render as tetrisRender} from "./tetris.js";
 const canvas = document.getElementById("game");
 canvas.width = 1920;
 canvas.height = 1280;
@@ -13,9 +13,11 @@ const mouse = {
 const images = {};
 const sounds = {};
 let paused = false;
-let muted = false;
 const objects = new Map();
-let settings = getSettings();
+let settings = {
+	muted: false,
+	grid: false
+};
 let highScore = localStorage.getItem("wooootrisHighScore") ?? 0;
 // Helper functions
 Object.defineProperty(context, "fontSize", {
@@ -71,22 +73,22 @@ class Button extends Drawable {
 class MuteButton extends Button {
 	constructor () {
 		const [X, Y, DX, DY] = [1920 - 96, 1280 - 96, 96, 96];
-		const name = muted ? "unmute" : "mute";
+		const name = settings.muted ? "unmute" : "mute";
 		const hitbox = new Path2D();
 		hitbox.rect(X, Y, DX, DY);
 		hitbox.closePath();
 		function draw() {
-			context.drawImage(images[muted ? "soundOff" : "soundOn"], X, Y, DX, DY);
+			context.drawImage(images[settings.muted ? "soundOff" : "soundOn"], X, Y, DX, DY);
 		}
 		function callback() {
-			muted = !muted;
-			console.log(muted ? "Muted" : "Unmuted");
+			settings.muted = !settings.muted;
+			console.log(settings.muted ? "Muted" : "Unmuted");
 			for (const sound of Object.values(sounds)) {
-				sound.muted = muted;
+				sound.muted = settings.muted;
 			}
 			objects.delete(name);
 			// Doesn't use name because muted has been toggled
-			objects.set(muted ? "unmute" : "mute", new MuteButton());
+			objects.set(settings.muted ? "unmute" : "mute", new MuteButton());
 			render();
 		}
 		super(hitbox, draw, callback);
@@ -206,19 +208,18 @@ const stateMachine = new StateMachine({
 			objects.set("start", new TextButton(960, 640, "Start", stateMachine.start, 640));
 			objects.set("settings", new TextButton(960, 800, "Settings", stateMachine.toSettings, 640));
 			objects.set("credits", new TextButton(960, 960, "Credits", stateMachine.toCredits, 640));
-			objects.set(muted ? "unmute" : "mute", new MuteButton());
+			objects.set(settings.muted ? "unmute" : "mute", new MuteButton());
 		},
 		onSettings() {
 			clear();
 			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
-			settings = getSettings();
 			objects.set("text", new Drawable(() => {
 				context.fillStyle = "white";
 				context.fillText("Grid:", 640, 320 + 92);
 			}));
 			objects.set("gridButton", new TextButton(1280, 320, "Grid", () => settings.grid = !settings.grid, 400));
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
-			objects.set(muted ? "unmute" : "mute", new MuteButton());
+			objects.set(settings.muted ? "unmute" : "mute", new MuteButton());
 		},
 		onCredits() {
 			clear();
@@ -232,7 +233,7 @@ const stateMachine = new StateMachine({
 				context.fillText("yayuuuhhhh", 960, 720);
 			}));
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
-			objects.set(muted ? "unmute" : "mute", new MuteButton());
+			objects.set(settings.muted ? "unmute" : "mute", new MuteButton());
 		},
 		onMain() {
 			clear();
@@ -240,7 +241,7 @@ const stateMachine = new StateMachine({
 			window.addEventListener("keydown", onKeyDown);
 			window.addEventListener("keyup", onKeyUp);
 			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
-			objects.set(muted ? "unmute" : "mute", new MuteButton());
+			objects.set(settings.muted ? "unmute" : "mute", new MuteButton());
 			objects.set("tetris", new Drawable(() => tetrisRender(context)));
 			requestAnimationFrame(loop);
 		},

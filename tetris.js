@@ -92,11 +92,8 @@ const QUEUE_START_Y = (1280 - (NEXT_AMOUNT - 1) * QUEUE_GAP - 2 * CELL_SIZE) / 2
 const HELD_CENTER_X = START_X - 300;
 const SCORE_START_Y = QUEUE_START_Y + 3 * CELL_SIZE + QUEUE_GAP;
 const TEXT_LINE_HEIGHT = CELL_SIZE;
-// Settings
-let settings = {
-	grid: false
-};
 // State variables
+let settings = null;
 const heldKeys = new Set();
 let cells = Array(CELL_AMOUNT).fill(" ");
 let queue = Array(7);
@@ -191,9 +188,6 @@ function displayPiece(context, type, x, y) {
 }
 function collisionCheck(piece, cell) {
 	return cells[cell] !== " " && cells[cell] !== "_" && !piece.blocks.includes(cell) && cell >= 0;
-}
-export function getSettings() {
-	return settings;
 }
 // New game
 function newBag() {
