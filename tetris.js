@@ -207,7 +207,7 @@ function newBag() {
 function newPosition(type, center, rotation = 0) {
 	return BLOCKS[type][type !== "O" ? rotation : 0].map(offset => center + offset);
 }
-export function newGame(newHigh = highScore) {
+export function newGame(newHigh = highScore, newSettings = settings) {
 	settings = newSettings;
 	cells = Array(CELL_AMOUNT).fill(" ");
 	queue = newBag();

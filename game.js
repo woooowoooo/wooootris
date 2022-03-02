@@ -236,7 +236,7 @@ const stateMachine = new StateMachine({
 		},
 		onMain() {
 			clear();
-			newGame(highScore);
+			newGame(highScore, settings);
 			window.addEventListener("keydown", onKeyDown);
 			window.addEventListener("keyup", onKeyUp);
 			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
