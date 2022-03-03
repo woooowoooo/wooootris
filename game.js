@@ -73,7 +73,6 @@ class Button extends Drawable {
 class MuteButton extends Button {
 	constructor () {
 		const [X, Y, DX, DY] = [1920 - 96, 1280 - 96, 96, 96];
-		const name = settings.muted ? "unmute" : "mute";
 		const hitbox = new Path2D();
 		hitbox.rect(X, Y, DX, DY);
 		hitbox.closePath();
@@ -86,9 +85,7 @@ class MuteButton extends Button {
 			for (const sound of Object.values(sounds)) {
 				sound.muted = settings.muted;
 			}
-			objects.delete(name);
-			// Doesn't use name because muted has been toggled
-			objects.set(settings.muted ? "unmute" : "mute", new MuteButton());
+			objects.set("mute", new MuteButton());
 			render();
 		}
 		super(hitbox, draw, callback);
@@ -111,6 +108,17 @@ class TextButton extends Button {
 			context.fillText(text, x, y + 92);
 		}
 		super(hitbox, draw, callback, ignorePause);
+	}
+}
+class TextToggle extends TextButton {
+	constructor (x, y, settingName) {
+		function callback() {
+			settings[settingName] = !settings[settingName];
+			console.log(`${settingName}: ${settings[settingName]}`);
+			objects.set(settingName, new TextToggle(x, y, settingName));
+			render();
+		}
+		super(x, y, settings[settingName], callback, 480);
 	}
 }
 // Loading assets
@@ -208,7 +216,7 @@ const stateMachine = new StateMachine({
 			objects.set("start", new TextButton(960, 640, "Start", stateMachine.start, 640));
 			objects.set("settings", new TextButton(960, 800, "Settings", stateMachine.toSettings, 640));
 			objects.set("credits", new TextButton(960, 960, "Credits", stateMachine.toCredits, 640));
-			objects.set(settings.muted ? "unmute" : "mute", new MuteButton());
+			objects.set("mute", new MuteButton());
 		},
 		onSettings() {
 			clear();
@@ -217,9 +225,9 @@ const stateMachine = new StateMachine({
 				context.fillStyle = "white";
 				context.fillText("Grid:", 640, 320 + 92);
 			}));
-			objects.set("gridButton", new TextButton(1280, 320, "Grid", () => settings.grid = !settings.grid, 400));
+			objects.set("grid", new TextToggle(1280, 320, "grid"));
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
-			objects.set(settings.muted ? "unmute" : "mute", new MuteButton());
+			objects.set("mute", new MuteButton());
 		},
 		onCredits() {
 			clear();
@@ -233,7 +241,7 @@ const stateMachine = new StateMachine({
 				context.fillText("yayuuuhhhh", 960, 720);
 			}));
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
-			objects.set(settings.muted ? "unmute" : "mute", new MuteButton());
+			objects.set("mute", new MuteButton());
 		},
 		onMain() {
 			clear();
@@ -241,7 +249,7 @@ const stateMachine = new StateMachine({
 			window.addEventListener("keydown", onKeyDown);
 			window.addEventListener("keyup", onKeyUp);
 			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
-			objects.set(settings.muted ? "unmute" : "mute", new MuteButton());
+			objects.set("mute", new MuteButton());
 			objects.set("tetris", new Drawable(() => tetrisRender(context)));
 			requestAnimationFrame(loop);
 		},
