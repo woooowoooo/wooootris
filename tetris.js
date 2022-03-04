@@ -77,6 +77,7 @@ const GRAVITY_SPEED = 60;
 const LOCK_MOVE_LIMIT = 10;
 const LOCK_SPEED = 40;
 const AUTOREPEAT_SPEED = 8; // Speed to start autorepeat, not speed of autorepeat
+const MOVE_TEXT_DURATION = 60;
 // Graphic constants
 const CELL_SIZE = 60;
 const CELL_AMOUNT = COLS * (ROWS + 2);
@@ -102,6 +103,7 @@ let current = null;
 let ghost = null;
 let score = 0;
 let highScore = 0;
+let moveText = null;
 let combo = 0;
 let tSpin = false;
 let hardMove = false;
@@ -112,6 +114,7 @@ let gravityTimer = 0;
 let lockMoves = 0;
 let lockTimer = 0;
 let autorepeatTimer = 0;
+let moveTextTimer = 0;
 // Piece class
 class Piece {
 	constructor (type, center, rotation, isGhost = false) {
@@ -207,7 +210,7 @@ export function newGame(newHigh = highScore, newSettings = settings) {
 	queue = newBag();
 	held = null;
 	current = new Piece(queue.shift());
-	flavorText = null;
+	moveText = null;
 	score = 0;
 	highScore = newHigh;
 	combo = 0;
@@ -237,18 +240,26 @@ function updateGhost(newPiece = current) {
 function scoreMove(linesCleared) {
 	if (tSpin) {
 		const corners = [-COLS - 1, -COLS + 1, COLS + 1, COLS - 1].map(offset => current.center + offset);
+		const amountNames = ["", " Single", " Double", " Triple"];
 		const filled = corners.map(cell => cells[cell] !== " ");
 		if (filled.filter(Boolean).length >= 3) { // 3-corner rule
 			hardMove = true;
+			moveTextTimer = MOVE_TEXT_DURATION;
 			const facing = [current.rotation, (current.rotation + 1) % 4].filter(corner => filled[corner]);
 			if (facing.length === 2) { // 2-corner rule
+				moveText = `T-Spin${amountNames[linesCleared]}`;
 				return T_SPIN_SCORES[linesCleared];
 			}
+			moveText = `T-Spin Mini${amountNames[linesCleared]}`;
 			return T_SPIN_MINI_SCORES[linesCleared];
 		}
 	}
-	if (linesCleared > 0) {
-		hardMove = linesCleared === 4;
+	if (linesCleared === 4) {
+		hardMove = true;
+		moveTextTimer = MOVE_TEXT_DURATION;
+		moveText = "Tetris";
+	} else {
+		hardMove = false;
 	}
 	return LINE_SCORES[linesCleared];
 }
@@ -275,6 +286,8 @@ function lock() { // Returns whether the game is over
 	}
 	// Perfect clear bonus
 	if (cells.every(cell => cell === " ")) {
+		moveText = "Perfect Clear";
+		moveTextTimer = MOVE_TEXT_DURATION;
 		score += PERFECT_CLEAR_SCORE;
 	}
 	// New piece
@@ -299,7 +312,6 @@ export function onKeyUp(e) {
 	heldKeys.delete(e.key);
 }
 export function handle({key, location}) {
-	changed = false;
 	if (key === "Escape") {
 		gameOver = true;
 		heldKeys.clear();
@@ -359,9 +371,16 @@ export function update() {
 	if (lockTimer >= LOCK_SPEED) {
 		gameOver ||= lock();
 	}
+	if (moveTextTimer > 0) {
+		changed = true; // Text color changes
+		moveTextTimer--;
+	} else if (moveText != null) {
+		moveText = null;
+	}
 	return [changed, gameOver, score];
 }
 export function render(context) {
+	changed = false;
 	context.fillStyle = "white";
 	context.fillRect(START_X - OUTLINE_WIDTH, START_Y - OUTLINE_WIDTH, TCOLS * CELL_SIZE + 2 * OUTLINE_WIDTH, ROWS * CELL_SIZE + 2 * OUTLINE_WIDTH);
 	context.fillRect(QUEUE_CENTER_X - QUEUE_WIDTH - OUTLINE_WIDTH, QUEUE_START_Y - CELL_SIZE - OUTLINE_WIDTH, 2 * (QUEUE_WIDTH + OUTLINE_WIDTH), NEXT_AMOUNT * QUEUE_GAP + CELL_SIZE + 2 * OUTLINE_WIDTH);
@@ -405,5 +424,9 @@ export function render(context) {
 	for (const text of texts) {
 		context.fillText(text, HELD_CENTER_X + 4 * CELL_SIZE, textY);
 		textY += TEXT_LINE_HEIGHT;
+	}
+	if (moveText != null) {
+		context.fillStyle = `hsla(0, 0%, 100%, ${Math.min(1, 2 * moveTextTimer / MOVE_TEXT_DURATION)})`;
+		context.fillText(moveText, HELD_CENTER_X + 4 * CELL_SIZE, textY);
 	}
 }
