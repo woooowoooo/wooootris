@@ -14,10 +14,16 @@ const images = {};
 const sounds = {};
 let paused = false;
 const objects = new Map();
-let settings = {
+let settings = new Proxy(JSON.parse(localStorage.getItem("wooootrisSettings")) ?? {
 	muted: false,
 	grid: false
-};
+}, {
+	set: function (target, property, value) {
+		const valid = Reflect.set(target, property, value);
+		localStorage.setItem("wooootrisSettings", JSON.stringify(target));
+		return valid;
+	}
+});
 let highScore = localStorage.getItem("wooootrisHighScore") ?? 0;
 // Helper functions
 Object.defineProperty(context, "fontSize", {
