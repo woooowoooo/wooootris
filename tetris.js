@@ -254,12 +254,10 @@ function scoreMove(linesCleared) {
 			return T_SPIN_MINI_SCORES[linesCleared];
 		}
 	}
+	hardMove = !(linesCleared > 0 && linesCleared < 4);
 	if (linesCleared === 4) {
-		hardMove = true;
 		moveTextTimer = MOVE_TEXT_DURATION;
 		moveText = "Tetris";
-	} else {
-		hardMove = false;
 	}
 	return LINE_SCORES[linesCleared];
 }
