@@ -16,9 +16,11 @@ let paused = false;
 const objects = new Map();
 let settings = new Proxy(JSON.parse(localStorage.getItem("wooootrisSettings")) ?? {
 	muted: false,
+	volume: 100,
 	grid: false
 }, {
 	set: function (target, property, value) {
+		console.log(`${property} has been set to ${value}`);
 		const valid = Reflect.set(target, property, value);
 		localStorage.setItem("wooootrisSettings", JSON.stringify(target));
 		return valid;
@@ -33,8 +35,8 @@ Object.defineProperty(context, "fontSize", {
 });
 function clear() {
 	context.clearRect(0, 0, 1920, 1280);
-	for (const object of Array.from(objects.values()).filter(object => (object instanceof Button))) {
-		canvas.removeEventListener("click", object.fullCallback);
+	for (const object of Array.from(objects.values()).filter(object => object.clear != null)) {
+		object.clear();
 	}
 	objects.clear();
 }
@@ -49,7 +51,7 @@ function getMousePosition(event) {
 	mouse.x = (event.clientX - bounds.left) * 1920 / (bounds.right - bounds.left);
 	mouse.y = (event.clientY - bounds.top) * 1280 / (bounds.bottom - bounds.top);
 }
-function wrapClickEvent(callback, condition = (() => true)) {
+function wrapClickEvent(callback, condition = () => true) {
 	// TODO: Figure out a way to use {once: true}
 	function fullCallback(e) {
 		if (condition(e)) {
@@ -74,6 +76,9 @@ class Button extends Drawable {
 		this.callback = callback;
 		this.hitbox = hitbox;
 		this.fullCallback = wrapClickEvent(callback, () => context.isPointInPath(hitbox, mouse.x, mouse.y) && (!paused || ignorePause));
+	}
+	clear() {
+		canvas.removeEventListener("click", this.fullCallback);
 	}
 }
 class MuteButton extends Button {
@@ -120,11 +125,58 @@ class TextToggle extends TextButton {
 	constructor (x, y, settingName) {
 		function callback() {
 			settings[settingName] = !settings[settingName];
-			console.log(`${settingName}: ${settings[settingName]}`);
 			objects.set(settingName, new TextToggle(x, y, settingName));
 			render();
 		}
 		super(x, y, settings[settingName], callback, 480);
+	}
+}
+class Slider extends Drawable {
+	constructor (x, y, width, settingName, start, end, step = 1, callback) {
+		function draw() {
+			context.fillStyle = "hsl(30, 5%, 80%)";
+			context.fillRect(x - width / 2, y - 4, width, 8);
+			const divisions = (end - start) / step;
+			for (let i = 0; i <= divisions; i++) {
+				context.fillRect(x - width / 2 + i * width / divisions - 8, y - 16, 16, 32);
+			}
+			context.fillStyle = "white";
+			const position = (settings[settingName] - start) / (end - start) * width + x - width / 2;
+			context.fillRect(position - 20, y - 32, 40, 64);
+		}
+		super(draw);
+		// Add sliding
+		let isSliding = false;
+		const hitbox = new Path2D();
+		hitbox.rect(x - width / 2 - 20, y - 32, width + 40, 64);
+		hitbox.closePath();
+		this.onMouseDown = e => {
+			getMousePosition(e);
+			if (context.isPointInPath(hitbox, mouse.x, mouse.y)) {
+				isSliding = true;
+				this.update(e);
+			}
+		};
+		this.update = e => {
+			getMousePosition(e);
+			if (isSliding) {
+				settings[settingName] = Math.max(start, Math.min(end, (mouse.x - (x - width / 2)) / width * (end - start) + start));
+				callback();
+				render();
+			}
+		};
+		this.onMouseUp = e => {
+			this.update(e);
+			isSliding = false;
+		};
+		canvas.addEventListener("mousedown", this.onMouseDown);
+		canvas.addEventListener("mousemove", this.update);
+		canvas.addEventListener("mouseup", this.onMouseUp);
+	}
+	clear() {
+		canvas.removeEventListener("mousedown", this.onMouseDown);
+		canvas.removeEventListener("mousemove", this.update);
+		canvas.removeEventListener("mouseup", this.onMouseUp);
 	}
 }
 // Loading assets
@@ -144,6 +196,8 @@ async function loadResources() {
 	}
 	for (const name of soundNames) {
 		initialize(sounds, name, `sounds/${name}.mp3`, "audio", "canplaythrough");
+		sounds[name].muted = settings.muted;
+		sounds[name].volume = settings.volume / 100;
 	}
 	return Promise.all(promises);
 }
@@ -229,9 +283,16 @@ const stateMachine = new StateMachine({
 			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
 			objects.set("text", new Drawable(() => {
 				context.fillStyle = "white";
-				context.fillText("Grid:", 640, 320 + 92);
+				context.textAlign = "right";
+				context.fillText("Grid:", 640, 280 + 92);
+				context.fillText("Volume:", 640, 480 + 28);
 			}));
-			objects.set("grid", new TextToggle(1280, 320, "grid"));
+			objects.set("grid", new TextToggle(1280, 280, "grid"));
+			objects.set("volume", new Slider(1280, 480, 960, "volume", 0, 100, 10, () => {
+				for (const sound of Object.values(sounds)) {
+					sound.volume = settings.volume / 100;
+				}
+			}));
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},

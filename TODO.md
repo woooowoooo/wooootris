@@ -8,7 +8,7 @@
 	- [ ] Temporarily show last move
 	- [x] Game over screen
 - [ ] Settings
-	- [ ] Volume sliders
+	- [x] Volume slider
 	- [ ] Column amount
 	- [x] Grid toggle
 	- [ ] Skins
