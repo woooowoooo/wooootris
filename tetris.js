@@ -345,6 +345,9 @@ export function update() {
 		if (autorepeatTimer === 0 || autorepeatTimer > settings.das && autorepeatTimer % settings.arr === 0) {
 			current.update(heldKeys.has("ArrowLeft") ? -1 : 1);
 		}
+		if (settings.arr === 0 && autorepeatTimer > settings.das) {
+			while (current.update(heldKeys.has("ArrowLeft") ? -1 : 1)) {}
+		}
 		autorepeatTimer++;
 	} else {
 		autorepeatTimer = 0;
