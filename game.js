@@ -14,14 +14,18 @@ const images = {};
 const sounds = {};
 let paused = false;
 const objects = new Map();
-let settings = new Proxy(JSON.parse(localStorage.getItem("wooootrisSettings")) ?? {
+const defaultSettings = {
 	muted: false,
 	volume: 100,
 	grid: false
-}, {
+};
+const settings = new Proxy(JSON.parse(localStorage.getItem("wooootrisSettings")) ?? defaultSettings, {
+	get: function (target, property) {
+		return Reflect.get(...arguments) ?? defaultSettings[property];
+	},
 	set: function (target, property, value) {
 		console.log(`${property} has been set to ${value}`);
-		const valid = Reflect.set(target, property, value);
+		const valid = Reflect.set(...arguments);
 		localStorage.setItem("wooootrisSettings", JSON.stringify(target));
 		return valid;
 	}
@@ -166,8 +170,8 @@ class Slider extends Drawable {
 			}
 		};
 		this.onMouseUp = e => {
-			this.update(e);
 			isSliding = false;
+			this.update(e);
 		};
 		canvas.addEventListener("mousedown", this.onMouseDown);
 		canvas.addEventListener("mousemove", this.update);
