@@ -76,7 +76,6 @@ const COMBO_SCORE = 50;
 const GRAVITY_SPEED = 60;
 const LOCK_MOVE_LIMIT = 10;
 const LOCK_SPEED = 40;
-const AUTOREPEAT_SPEED = 8; // Speed to start autorepeat, not speed of autorepeat
 const MOVE_TEXT_DURATION = 60;
 // Graphic constants
 const CELL_SIZE = 60;
@@ -343,15 +342,12 @@ export function handle({key, location}) {
 export function update() {
 	// Handle held keys
 	if (heldKeys.has("ArrowLeft") !== heldKeys.has("ArrowRight")) {
-		if (autorepeatTimer === 0) { // Move once before autorepeat
+		if (autorepeatTimer === 0 || autorepeatTimer > settings.das && autorepeatTimer % settings.arr === 0) {
 			current.update(heldKeys.has("ArrowLeft") ? -1 : 1);
 		}
 		autorepeatTimer++;
 	} else {
 		autorepeatTimer = 0;
-	}
-	if (autorepeatTimer >= AUTOREPEAT_SPEED) {
-		current.update(heldKeys.has("ArrowLeft") ? -1 : 1);
 	}
 	if (heldKeys.has("ArrowDown")) {
 		const success = current.update(COLS);

@@ -17,7 +17,9 @@ const objects = new Map();
 const defaultSettings = {
 	muted: false,
 	volume: 100,
-	grid: false
+	grid: false,
+	arr: 2,
+	das: 10
 };
 const settings = new Proxy(JSON.parse(localStorage.getItem("wooootrisSettings")) ?? defaultSettings, {
 	get: function (target, property) {
@@ -136,7 +138,7 @@ class TextToggle extends TextButton {
 	}
 }
 class Slider extends Drawable {
-	constructor (x, y, width, settingName, start, end, step = 1, callback) {
+	constructor (x, y, width, settingName, start, end, step = 1, intValues = true, callback) {
 		function draw() {
 			context.fillStyle = "hsl(30, 5%, 80%)";
 			context.fillRect(x - width / 2, y - 4, width, 8);
@@ -147,6 +149,11 @@ class Slider extends Drawable {
 			context.fillStyle = "white";
 			const position = (settings[settingName] - start) / (end - start) * width + x - width / 2;
 			context.fillRect(position - 20, y - 32, 40, 64);
+			context.fontSize = 4;
+			context.textAlign = "right";
+			context.fillText(start, x - width / 2 - 40, y + 16);
+			context.textAlign = "left";
+			context.fillText(end, x + width / 2 + 40, y + 16);
 		}
 		super(draw);
 		// Add sliding
@@ -164,8 +171,12 @@ class Slider extends Drawable {
 		this.update = e => {
 			getMousePosition(e);
 			if (isSliding) {
-				settings[settingName] = Math.max(start, Math.min(end, (mouse.x - (x - width / 2)) / width * (end - start) + start));
-				callback();
+				let value = (mouse.x - (x - width / 2)) / width * (end - start) + start;
+				let constrainedValue = Math.max(start, Math.min(end, value));
+				settings[settingName] = intValues ? Math.round(constrainedValue) : constrainedValue;
+				if (callback != null) {
+					callback();
+				}
 				render();
 			}
 		};
@@ -248,9 +259,9 @@ const stateMachine = new StateMachine({
 			// Loading screen
 			context.fillStyle = "black";
 			context.fillRect(0, 0, 1920, 1280);
-			context.textAlign = "center";
-			context.fontSize = 16;
 			context.fillStyle = "white";
+			context.fontSize = 16;
+			context.textAlign = "center";
 			context.fillText("LOADING", 960, 400);
 			context.fontSize = 8;
 			context.fillText("If this doesn't go away,", 960, 800);
@@ -261,8 +272,8 @@ const stateMachine = new StateMachine({
 			clear();
 			context.fillStyle = "black";
 			context.fillRect(0, 0, 1920, 1280);
-			context.fontSize = 8;
 			context.fillStyle = "white";
+			context.fontSize = 8;
 			context.fillText("Loading finished.", 960, 400);
 			context.fillText("CLICK ANYWHERE", 960, 800);
 			context.fillText("TO CONTINUE", 960, 960);
@@ -288,11 +299,15 @@ const stateMachine = new StateMachine({
 			objects.set("text", new Drawable(() => {
 				context.fillStyle = "white";
 				context.textAlign = "right";
-				context.fillText("Grid:", 640, 280 + 92);
-				context.fillText("Volume:", 640, 480 + 28);
+				context.fillText("Grid:", 600, 200 + 92);
+				context.fillText("ARR:", 600, 450 + 28);
+				context.fillText("DAS:", 600, 600 + 28);
+				context.fillText("Volume:", 600, 750 + 28);
 			}));
-			objects.set("grid", new TextToggle(1280, 280, "grid"));
-			objects.set("volume", new Slider(1280, 480, 960, "volume", 0, 100, 10, () => {
+			objects.set("grid", new TextToggle(1200, 200, "grid"));
+			objects.set("arr", new Slider(1200, 450, 960, "arr", 0, 5));
+			objects.set("das", new Slider(1200, 600, 960, "das", 0, 20));
+			objects.set("volume", new Slider(1200, 750, 960, "volume", 0, 100, 10, false, () => {
 				for (const sound of Object.values(sounds)) {
 					sound.volume = settings.volume / 100;
 				}
@@ -334,9 +349,9 @@ const stateMachine = new StateMachine({
 			objects.set("endScreen", new Drawable(() => {
 				context.fillStyle = "rgba(0, 0, 0, 0.5)";
 				context.fillRect(0, 0, 1920, 1280);
+				context.fillStyle = "white";
 				context.fontSize = 16;
 				context.textAlign = "center";
-				context.fillStyle = "white";
 				context.fillText("GAME OVER", 960, 400);
 				context.fontSize = 8;
 				context.fillText(`Score: ${score}`, 960, 540);
