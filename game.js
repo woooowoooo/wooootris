@@ -369,7 +369,18 @@ const stateMachine = new StateMachine({
 	}
 });
 // Main loop
-function loop() {
+const FPS = 60;
+const FRAME_TIME = 1000 / FPS;
+let lastTime = window.performance.now();
+function loop(time) {
+	// Lock to 60 fps
+	if (time - lastTime < FRAME_TIME) {
+		requestAnimationFrame(loop);
+		return;
+	}
+	lastTime = time - (time % FRAME_TIME);
+	frames++;
+	// Break on game loss
 	if (!stateMachine.is("main")) {
 		return;
 	}

@@ -13,8 +13,8 @@
 	- [x] Grid toggle
 	- [ ] Skins
 	- [ ] Movement settings
-		- [ ] Automatic Repeat Rate
-		- [ ] Delayed Auto Shift
+		- [x] Automatic Repeat Rate
+		- [x] Delayed Auto Shift
 		- [ ] Soft Drop Factor
 - [x] Credits
 
@@ -43,7 +43,7 @@
 	- [ ] Regular
 		- [ ] Levels
 		- [ ] Speed up gravity over time
-- [ ] Lock to 60 fps
+- [x] Lock to 60 fps
 
 ## Movement Controls
 - [x] Moving pieces (Left, Right)
