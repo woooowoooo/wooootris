@@ -93,15 +93,27 @@ const HELD_CENTER_X = START_X - 300;
 const SCORE_START_Y = QUEUE_START_Y + 3 * CELL_SIZE + QUEUE_GAP;
 const TEXT_LINE_HEIGHT = CELL_SIZE;
 // State variables
+let highScores = new Proxy(JSON.parse(localStorage.getItem("wooootrisHighScores")) ?? {}, {
+	get: function () {
+		return Reflect.get(...arguments) ?? 0;
+	},
+	set: function (target, property, value) {
+		console.log(`${property} has been set to ${value}`);
+		const valid = Reflect.set(...arguments);
+		localStorage.setItem("wooootrisHighScores", JSON.stringify(target));
+		return valid;
+	}
+});
 let settings = null;
+let mode = null;
 const heldKeys = new Set();
 let cells = Array(CELL_AMOUNT).fill(" ");
 let queue = Array(7);
 let held = null;
 let current = null;
 let ghost = null;
+let totalLines = 0;
 let score = 0;
-let highScore = 0;
 let moveText = null;
 let combo = 0;
 let tSpin = false;
@@ -203,15 +215,17 @@ function newBag() {
 function newPosition(type, center, rotation = 0) {
 	return BLOCKS[type][type !== "O" ? rotation : 0].map(offset => center + offset);
 }
-export function newGame(newHigh = highScore, newSettings = settings) {
+export function newGame(newMode, newSettings = settings) {
 	settings = newSettings;
+	mode = newMode;
+	highScores[mode] = Math.max(score, highScores[mode]);
 	cells = Array(CELL_AMOUNT).fill(" ");
 	queue = newBag();
 	held = null;
 	current = new Piece(queue.shift());
 	moveText = null;
+	totalLines = 0;
 	score = 0;
-	highScore = newHigh;
 	combo = 0;
 	tSpin = false;
 	hardMove = false;
@@ -269,6 +283,7 @@ function lock() { // Returns whether the game is over
 		return true;
 	}
 	const fullLines = [...lines].filter(line => cells.slice(line * COLS + 1, (line + 1) * COLS).every(cell => cell !== " "));
+	totalLines += fullLines.length;
 	// Update score
 	const backToBack = hardMove;
 	score += ((backToBack && hardMove && fullLines.length > 0) ? BACK_TO_BACK_MULTIPLIER : 1) * scoreMove(fullLines.length);
@@ -288,6 +303,10 @@ function lock() { // Returns whether the game is over
 		moveText = "Perfect Clear";
 		moveTextTimer = MOVE_TEXT_DURATION;
 		score += PERFECT_CLEAR_SCORE;
+	}
+	// End game on 40 line mode
+	if (mode === "fourtyLines" && totalLines >= 40) {
+		return true;
 	}
 	// New piece
 	current = new Piece(queue.shift());
@@ -315,9 +334,7 @@ export function handle({key, location}) {
 		gameOver = true;
 		heldKeys.clear();
 	} else if (key === "r" || key === "R") {
-		highScore = Math.max(score, highScore);
-		localStorage.setItem("wooootrisHighScore", highScore);
-		newGame(Math.max(score, highScore));
+		newGame(mode);
 	} else if (key === " ") {
 		const offset = ghost.center - current.center;
 		current.update(offset);
@@ -376,7 +393,7 @@ export function update() {
 	} else if (moveText != null) {
 		moveText = null;
 	}
-	return [changed, gameOver, score];
+	return [changed, gameOver, score, highScores[mode]];
 }
 export function render(context) {
 	changed = false;
@@ -415,7 +432,8 @@ export function render(context) {
 	context.fillStyle = "white";
 	const texts = [
 		"Score " + score.toString().padStart(6, "0"),
-		"HScore " + highScore.toString().padStart(6, "0"),
+		"HScore " + highScores[mode].toString().padStart(6, "0"),
+		"Lines " + totalLines.toString().padStart(6),
 		"Combo " + combo.toString().padStart(6),
 		"B2B " + hardMove.toString().padStart(6)
 	];

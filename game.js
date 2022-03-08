@@ -13,6 +13,7 @@ const mouse = {
 const images = {};
 const sounds = {};
 let paused = false;
+let mode = "";
 const objects = new Map();
 const defaultSettings = {
 	muted: false,
@@ -32,7 +33,6 @@ const settings = new Proxy(JSON.parse(localStorage.getItem("wooootrisSettings"))
 		return valid;
 	}
 });
-let highScore = localStorage.getItem("wooootrisHighScore") ?? 0;
 // Helper functions
 Object.defineProperty(context, "fontSize", {
 	set: size => {
@@ -286,11 +286,12 @@ const stateMachine = new StateMachine({
 			objects.set("title", new Drawable(() => {
 				context.fillStyle = "white";
 				context.fontSize = 20;
-				context.fillText("wooootris", 960, 420);
+				context.fillText("wooootris", 960, 320);
 			}));
-			objects.set("start", new TextButton(960, 640, "Start", stateMachine.start, 640));
-			objects.set("settings", new TextButton(960, 800, "Settings", stateMachine.toSettings, 640));
-			objects.set("credits", new TextButton(960, 960, "Credits", stateMachine.toCredits, 640));
+			objects.set("start", new TextButton(960, 520, "Start", () => stateMachine.start("default"), 640));
+			objects.set("fourtyLines", new TextButton(960, 680, "40 Lines", () => stateMachine.start("fourtyLines"), 640));
+			objects.set("settings", new TextButton(960, 840, "Settings", stateMachine.toSettings, 640));
+			objects.set("credits", new TextButton(960, 1000, "Credits", stateMachine.toCredits, 640));
 			objects.set("mute", new MuteButton());
 		},
 		onSettings() {
@@ -329,9 +330,10 @@ const stateMachine = new StateMachine({
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
-		onMain() {
+		onMain(_, newMode = mode) {
+			mode = newMode;
 			clear();
-			newGame(highScore, settings);
+			newGame(mode, settings);
 			window.addEventListener("keydown", onKeyDown);
 			window.addEventListener("keyup", onKeyUp);
 			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
@@ -339,7 +341,7 @@ const stateMachine = new StateMachine({
 			objects.set("tetris", new Drawable(() => tetrisRender(context)));
 			requestAnimationFrame(loop);
 		},
-		onGameOver(_, score) {
+		onGameOver(_, score, highScore) {
 			window.removeEventListener("keydown", onKeyDown);
 			window.removeEventListener("keyup", onKeyUp);
 			paused = true;
@@ -386,11 +388,9 @@ function loop(time) {
 	}
 	// Handling is done in tetris.js
 	// Update game state
-	const [changed, gameOver, score] = update();
+	const [changed, gameOver, score, highScore] = update();
 	if (gameOver) {
-		highScore = Math.max(score, highScore);
-		localStorage.setItem("wooootrisHighScore", highScore);
-		stateMachine.lose(score);
+		stateMachine.lose(score, highScore);
 	}
 	if (changed) { // If board has updated
 		render();

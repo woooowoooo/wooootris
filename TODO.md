@@ -2,10 +2,10 @@
 - [x] Tetris background
 - [x] Main Menu
 	- [ ] Graphic title
-- [ ] Ingame
+- [x] Ingame
 	- [x] Center queued pieces
 	- [x] Show score effects (combo, b2b)
-	- [ ] Temporarily show last move
+	- [x] Temporarily show last move
 	- [x] Game over screen
 - [ ] Settings
 	- [x] Volume slider
@@ -22,6 +22,7 @@
 - [ ] More fitting music
 - [ ] Lock sound
 - [ ] Death sound
+- [ ] Slider move sound
 
 # Gameplay
 - [x] Grid
@@ -39,10 +40,11 @@
 	- [x] Return scores
 	- [x] Retry (R)
 - [ ] Modes
-	- [ ] 40 lines (sprint)
 	- [ ] Regular
 		- [ ] Levels
 		- [ ] Speed up gravity over time
+	- [x] 40 lines (sprint)
+	- [x] No gravity (default)
 - [x] Lock to 60 fps
 
 ## Movement Controls
