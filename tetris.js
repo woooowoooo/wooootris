@@ -134,12 +134,15 @@ class Piece {
 		this.ghost = isGhost;
 		this.center = center ?? MID;
 		this.rotation = rotation ?? 0;
-		this.blocks = newPosition(type, center ?? MID + COLS, rotation ?? 0);
-		this.fill();
+		this.blocks = newPosition(type, center ?? MID, rotation ?? 0);
 		if (!isGhost) {
+			if (queue.length < NEXT_AMOUNT) {
+				queue.push(...newBag());
+			}
 			updateGhost(this);
 			ghost.fill();
 		}
+		this.fill();
 	}
 	clear() {
 		this.fill(" ");
@@ -310,9 +313,6 @@ function lock() { // Returns whether the game is over
 	}
 	// New piece
 	current = new Piece(queue.shift());
-	if (queue.length < NEXT_AMOUNT) {
-		queue.push(...newBag());
-	}
 	gravityTimer = 0;
 	lockMoves = 0;
 	lockTimer = 0;
