@@ -341,7 +341,7 @@ const stateMachine = new StateMachine({
 			objects.set("tetris", new Drawable(() => tetrisRender(context)));
 			requestAnimationFrame(loop);
 		},
-		onGameOver(_, score, highScore) {
+		onGameOver(_, text) {
 			window.removeEventListener("keydown", onKeyDown);
 			window.removeEventListener("keyup", onKeyUp);
 			paused = true;
@@ -356,8 +356,11 @@ const stateMachine = new StateMachine({
 				context.textAlign = "center";
 				context.fillText("GAME OVER", 960, 400);
 				context.fontSize = 8;
-				context.fillText(`Score: ${score}`, 960, 540);
-				context.fillText(`High Score: ${highScore}`, 960, 640);
+				let textY = 540;
+				for (const line of text) {
+					context.fillText(line, 960, textY);
+					textY += 100;
+				}
 			}));
 			objects.set("menu", new TextButton(672, 880, "Menu", stateMachine.toMenu, 480, true));
 			objects.set("retry", new TextButton(1248, 880, "Retry", stateMachine.retry, 480, true));
@@ -388,9 +391,9 @@ function loop(time) {
 	}
 	// Handling is done in tetris.js
 	// Update game state
-	const [changed, gameOver, score, highScore] = update();
-	if (gameOver) {
-		stateMachine.lose(score, highScore);
+	const [changed, endText] = update();
+	if (endText != null) {
+		stateMachine.lose(endText);
 	}
 	if (changed) { // If board has updated
 		render();

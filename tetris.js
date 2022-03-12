@@ -94,9 +94,6 @@ const SCORE_START_Y = QUEUE_START_Y + 3 * CELL_SIZE + QUEUE_GAP;
 const TEXT_LINE_HEIGHT = CELL_SIZE;
 // State variables
 let highScores = new Proxy(JSON.parse(localStorage.getItem("wooootrisHighScores")) ?? {}, {
-	get: function () {
-		return Reflect.get(...arguments) ?? 0;
-	},
 	set: function (target, property, value) {
 		console.log(`${property} has been set to ${value}`);
 		const valid = Reflect.set(...arguments);
@@ -112,15 +109,19 @@ let queue = Array(7);
 let held = null;
 let current = null;
 let ghost = null;
-let totalLines = 0;
-let score = 0;
 let moveText = null;
+let endGameText = null;
+let hasHeld = false;
+let changed = true;
+// Scoring
+let startTime = 0;
+let time = 0;
+let score = 0;
+let totalLines = 0;
 let combo = 0;
 let tSpin = false;
 let hardMove = false;
-let gameOver = false;
-let changed = true;
-let hasHeld = false;
+// Timers
 let gravityTimer = 0;
 let lockMoves = 0;
 let lockTimer = 0;
@@ -221,24 +222,41 @@ function newPosition(type, center, rotation = 0) {
 export function newGame(newMode, newSettings = settings) {
 	settings = newSettings;
 	mode = newMode;
-	highScores[mode] = Math.max(score, highScores[mode]);
+	heldKeys.clear();
 	cells = Array(CELL_AMOUNT).fill(" ");
 	queue = newBag();
 	held = null;
 	current = new Piece(queue.shift());
 	moveText = null;
-	totalLines = 0;
+	endGameText = null;
+	hasHeld = false;
+	changed = true;
+	// Scoring
+	startTime = window.performance.now();
+	time = 0;
 	score = 0;
+	totalLines = 0;
 	combo = 0;
 	tSpin = false;
 	hardMove = false;
-	gameOver = false;
-	changed = true;
-	hasHeld = false;
+	// Timers
 	gravityTimer = 0;
 	lockMoves = 0;
 	lockTimer = 0;
 	autorepeatTimer = 0;
+}
+function endGame(win) {
+	if (!win) {
+		endGameText = ["Retry?"];
+		return;
+	}
+	highScores[mode ?? newMode] = mode === "fourtyLines" ? Math.min(time, highScores[mode] ?? Infinity) : Math.max(score, highScores[mode] ?? 0);
+	let endText = {
+		default: [`Score: ${score}`, `High Score: ${highScores[mode]}`],
+		fourtyLines: [`Time: ${time / 1000} seconds`, `Fastest Time: ${highScores[mode] / 1000} seconds`]
+	};
+	endGameText = endText[mode];
+	return;
 }
 // Game mechanics
 function updateGhost(newPiece = current) {
@@ -283,7 +301,8 @@ function lock() { // Returns whether the game is over
 	// Count full lines
 	const lines = new Set(current.blocks.map(block => Math.floor(block / COLS)));
 	if (lines.has(1)) {
-		return true;
+		endGame(mode === "default");
+		return;
 	}
 	const fullLines = [...lines].filter(line => cells.slice(line * COLS + 1, (line + 1) * COLS).every(cell => cell !== " "));
 	totalLines += fullLines.length;
@@ -309,7 +328,8 @@ function lock() { // Returns whether the game is over
 	}
 	// End game on 40 line mode
 	if (mode === "fourtyLines" && totalLines >= 40) {
-		return true;
+		endGame(true);
+		return;
 	}
 	// New piece
 	current = new Piece(queue.shift());
@@ -317,7 +337,7 @@ function lock() { // Returns whether the game is over
 	lockMoves = 0;
 	lockTimer = 0;
 	hasHeld = false;
-	return false;
+	return;
 }
 // Game loop
 export function onKeyDown(e) {
@@ -331,7 +351,7 @@ export function onKeyUp(e) {
 }
 export function handle({key, location}) {
 	if (key === "Escape") {
-		gameOver = true;
+		endGame(mode === "default");
 		heldKeys.clear();
 	} else if (key === "r" || key === "R") {
 		newGame(mode);
@@ -357,6 +377,7 @@ export function handle({key, location}) {
 	}
 }
 export function update() {
+	time = window.performance.now() - startTime;
 	// Handle held keys
 	if (heldKeys.has("ArrowLeft") !== heldKeys.has("ArrowRight")) {
 		if (autorepeatTimer === 0 || autorepeatTimer > settings.das && autorepeatTimer % settings.arr === 0) {
@@ -385,7 +406,7 @@ export function update() {
 		current.update(COLS);
 	}
 	if (lockTimer >= LOCK_SPEED) {
-		gameOver ||= lock();
+		lock();
 	}
 	if (moveTextTimer > 0) {
 		changed = true; // Text color changes
@@ -393,7 +414,7 @@ export function update() {
 	} else if (moveText != null) {
 		moveText = null;
 	}
-	return [changed, gameOver, score, highScores[mode]];
+	return [mode === "fourtyLines" ? true : changed, endGameText];
 }
 export function render(context) {
 	changed = false;
@@ -430,16 +451,24 @@ export function render(context) {
 	context.fontSize = 5;
 	context.textAlign = "right";
 	context.fillStyle = "white";
-	const texts = [
-		"Score " + score.toString().padStart(6, "0"),
-		"HScore " + highScores[mode].toString().padStart(6, "0"),
-		"Lines " + totalLines.toString().padStart(6),
-		"Combo " + combo.toString().padStart(6),
-		"B2B " + hardMove.toString().padStart(6)
-	];
+	const texts = {
+		Score: score,
+		HScore: (highScores[mode] ?? "None"),
+		Lines: totalLines,
+		Combo: combo,
+		B2B: hardMove
+	};
+	const fourtyLineTexts = {
+		Time: (time / 1000).toFixed(3) + "s",
+		FTime: (highScores[mode] != null) ? ((highScores[mode] / 1000).toFixed(3) + "s") : "None",
+		Lines: `${totalLines} | 40`,
+		Combo: combo,
+		B2B: hardMove
+	};
 	let textY = SCORE_START_Y;
-	for (const text of texts) {
-		context.fillText(text, HELD_CENTER_X + 4 * CELL_SIZE, textY);
+	for (const [key, value] of Object.entries(mode === "default" ? texts : fourtyLineTexts)) {
+		context.fillText(key, HELD_CENTER_X + 4 * CELL_SIZE - (mode === "default" ? 320 : 360), textY);
+		context.fillText(value, HELD_CENTER_X + 4 * CELL_SIZE, textY);
 		textY += TEXT_LINE_HEIGHT;
 	}
 	if (moveText != null) {
