@@ -97,10 +97,10 @@ class MuteButton extends Button {
 			context.drawImage(images[settings.muted ? "soundOff" : "soundOn"], X, Y, DX, DY);
 		}
 		function callback() {
-			settings.muted = !settings.muted;
+			settings.muted = false;
 			console.log(settings.muted ? "Muted" : "Unmuted");
 			for (const sound of Object.values(sounds)) {
-				sound.muted = settings.muted;
+				sound.muted = false;
 			}
 			objects.set("mute", new MuteButton());
 			render();
@@ -211,8 +211,8 @@ async function loadResources() {
 	}
 	for (const name of soundNames) {
 		initialize(sounds, name, `sounds/${name}.mp3`, "audio", "canplaythrough");
-		sounds[name].muted = settings.muted;
-		sounds[name].volume = settings.volume / 100;
+		sounds[name].muted = false;
+		sounds[name].volume = 0;
 	}
 	return Promise.all(promises);
 }
@@ -310,7 +310,7 @@ const stateMachine = new StateMachine({
 			objects.set("das", new Slider(1200, 600, 960, "das", 0, 20));
 			objects.set("volume", new Slider(1200, 750, 960, "volume", 0, 100, 10, false, () => {
 				for (const sound of Object.values(sounds)) {
-					sound.volume = settings.volume / 100;
+					sound.volume = 0;
 				}
 			}));
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
@@ -346,7 +346,7 @@ const stateMachine = new StateMachine({
 			window.removeEventListener("keyup", onKeyUp);
 			paused = true;
 			for (const sound of Object.values(sounds).filter(sound => !sound.paused)) {
-				sound.pause();
+				// sound.pause();
 			}
 			objects.set("endScreen", new Drawable(() => {
 				context.fillStyle = "rgba(0, 0, 0, 0.5)";
@@ -368,7 +368,7 @@ const stateMachine = new StateMachine({
 		onLeaveGameOver() {
 			paused = false;
 			for (const sound of Object.values(sounds).filter(sound => sound.paused)) {
-				sound.play();
+				// sound.play();
 			}
 		}
 	}
