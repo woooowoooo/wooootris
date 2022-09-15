@@ -289,7 +289,7 @@ const stateMachine = new StateMachine({
 				context.fillText("wooootris", 960, 320);
 			}));
 			objects.set("start", new TextButton(960, 520, "Start", () => stateMachine.start("default"), 640));
-			objects.set("fourtyLines", new TextButton(960, 680, "40 Lines", () => stateMachine.start("fourtyLines"), 640));
+			objects.set("fortyLines", new TextButton(960, 680, "40 Lines", () => stateMachine.start("fortyLines"), 640));
 			objects.set("settings", new TextButton(960, 840, "Settings", stateMachine.toSettings, 640));
 			objects.set("credits", new TextButton(960, 1000, "Credits", stateMachine.toCredits, 640));
 			objects.set("mute", new MuteButton());
