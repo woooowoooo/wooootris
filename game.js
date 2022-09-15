@@ -300,20 +300,20 @@ const stateMachine = new StateMachine({
 			objects.set("text", new Drawable(() => {
 				context.fillStyle = "white";
 				context.textAlign = "right";
-				context.fillText("Grid:", 600, 200 + 92);
-				context.fillText("ARR:", 600, 450 + 28);
+				context.fillText("Grid:", 600, 280 - 20 + 28);
+				context.fillText("ARR:", 600, 440 + 28);
 				context.fillText("DAS:", 600, 600 + 28);
-				context.fillText("Volume:", 600, 750 + 28);
+				context.fillText("Volume:", 600, 760 + 28);
 			}));
-			objects.set("grid", new TextToggle(1200, 200, "grid"));
-			objects.set("arr", new Slider(1200, 450, 960, "arr", 0, 5));
+			objects.set("grid", new TextToggle(1200, 280 - 20 + 28 - 92, "grid"));
+			objects.set("arr", new Slider(1200, 440, 960, "arr", 0, 5));
 			objects.set("das", new Slider(1200, 600, 960, "das", 0, 20));
-			objects.set("volume", new Slider(1200, 750, 960, "volume", 0, 100, 10, false, () => {
+			objects.set("volume", new Slider(1200, 760, 960, "volume", 0, 100, 10, false, () => {
 				for (const sound of Object.values(sounds)) {
 					sound.volume = 0;
 				}
 			}));
-			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
+			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
 		onCredits() {
@@ -327,7 +327,7 @@ const stateMachine = new StateMachine({
 				context.fillText("Inspiration and testing", 960, 640);
 				context.fillText("yayuuuhhhh", 960, 720);
 			}));
-			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
+			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
 		onMain(_, newMode = mode) {
@@ -362,8 +362,8 @@ const stateMachine = new StateMachine({
 					textY += 100;
 				}
 			}));
-			objects.set("menu", new TextButton(672, 880, "Menu", stateMachine.toMenu, 480, true));
-			objects.set("retry", new TextButton(1248, 880, "Retry", stateMachine.retry, 480, true));
+			objects.set("menu", new TextButton(672, 920, "Menu", stateMachine.toMenu, 480, true));
+			objects.set("retry", new TextButton(1248, 920, "Retry", stateMachine.retry, 480, true));
 		},
 		onLeaveGameOver() {
 			paused = false;
