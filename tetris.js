@@ -250,13 +250,12 @@ function endGame(win) {
 		endGameText = ["Retry?"];
 		return;
 	}
-	highScores[mode ?? newMode] = mode === "fourtyLines" ? Math.min(time, highScores[mode] ?? Infinity) : Math.max(score, highScores[mode] ?? 0);
+	highScores[mode ?? newMode] = mode === "fortyLines" ? Math.min(time, highScores[mode] ?? Infinity) : Math.max(score, highScores[mode] ?? 0);
 	let endText = {
 		default: [`Score: ${score}`, `High Score: ${highScores[mode]}`],
-		fourtyLines: [`Time: ${time / 1000} seconds`, `Fastest Time: ${highScores[mode] / 1000} seconds`]
+		fortyLines: [`Time: ${time / 1000} seconds`, `Fastest Time: ${highScores[mode] / 1000} seconds`]
 	};
 	endGameText = endText[mode];
-	return;
 }
 // Game mechanics
 function updateGhost(newPiece = current) {
@@ -327,7 +326,7 @@ function lock() { // Returns whether the game is over
 		score += PERFECT_CLEAR_SCORE;
 	}
 	// End game on 40 line mode
-	if (mode === "fourtyLines" && totalLines >= 40) {
+	if (mode === "fortyLines" && totalLines >= 40) {
 		endGame(true);
 		return;
 	}
@@ -337,7 +336,6 @@ function lock() { // Returns whether the game is over
 	lockMoves = 0;
 	lockTimer = 0;
 	hasHeld = false;
-	return;
 }
 // Game loop
 export function onKeyDown(e) {
@@ -414,7 +412,7 @@ export function update() {
 	} else if (moveText != null) {
 		moveText = null;
 	}
-	return [mode === "fourtyLines" ? true : changed, endGameText];
+	return [mode === "fortyLines" ? true : changed, endGameText];
 }
 export function render(context) {
 	changed = false;
@@ -458,7 +456,7 @@ export function render(context) {
 		Combo: combo,
 		B2B: hardMove
 	};
-	const fourtyLineTexts = {
+	const fortyLineTexts = {
 		Time: (time / 1000).toFixed(3) + "s",
 		FTime: (highScores[mode] != null) ? ((highScores[mode] / 1000).toFixed(3) + "s") : "None",
 		Lines: `${totalLines} | 40`,
@@ -466,7 +464,7 @@ export function render(context) {
 		B2B: hardMove
 	};
 	let textY = SCORE_START_Y;
-	for (const [key, value] of Object.entries(mode === "default" ? texts : fourtyLineTexts)) {
+	for (const [key, value] of Object.entries(mode === "default" ? texts : fortyLineTexts)) {
 		context.fillText(key, HELD_CENTER_X + 4 * CELL_SIZE - (mode === "default" ? 320 : 360), textY);
 		context.fillText(value, HELD_CENTER_X + 4 * CELL_SIZE, textY);
 		textY += TEXT_LINE_HEIGHT;
