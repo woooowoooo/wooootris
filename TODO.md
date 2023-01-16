@@ -2,7 +2,7 @@
 - [x] Tetris background
 - [x] Main Menu
 	- [ ] Graphic title
-	- [ ] Singleplayer menu
+	- [x] Singleplayer menu
 - [x] Ingame
 	- [x] Center queued pieces
 	- [x] Show score effects (combo, b2b)

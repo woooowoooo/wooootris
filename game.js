@@ -226,14 +226,24 @@ const stateMachine = new StateMachine({
 			to: "menu"
 		},
 		{
-			name: "start",
+			name: "toSingleplayer",
 			from: "menu",
+			to: "singleplayer"
+		},
+		{
+			name: "start",
+			from: "singleplayer",
 			to: "main"
 		},
 		{
 			name: "toSettings",
 			from: "menu",
 			to: "settings"
+		},
+		{
+			name: "toInstructions",
+			from: "menu",
+			to: "instructions"
 		},
 		{
 			name: "toCredits",
@@ -288,10 +298,22 @@ const stateMachine = new StateMachine({
 				context.fontSize = 20;
 				context.fillText("wooootris", 960, 320);
 			}));
-			objects.set("start", new TextButton(960, 520, "Start", () => stateMachine.start("default"), 640));
+			objects.set("singleplayer", new TextButton(960, 520, "Singleplayer", stateMachine.toSingleplayer, 960));
+			objects.set("settings", new TextButton(960, 680, "Settings", stateMachine.toSettings, 960));
+			objects.set("credits", new TextButton(960, 1000, "Credits", stateMachine.toCredits, 960));
+			objects.set("mute", new MuteButton());
+		},
+		onSingleplayer() {
+			clear();
+			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
+			objects.set("title", new Drawable(() => {
+				context.fillStyle = "white";
+				context.fontSize = 20;
+				context.fillText("wooootris", 960, 320);
+			}));
+			objects.set("regular", new TextButton(960, 520, "Regular", () => stateMachine.start("default"), 640));
 			objects.set("fortyLines", new TextButton(960, 680, "40 Lines", () => stateMachine.start("fortyLines"), 640));
-			objects.set("settings", new TextButton(960, 840, "Settings", stateMachine.toSettings, 640));
-			objects.set("credits", new TextButton(960, 1000, "Credits", stateMachine.toCredits, 640));
+			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
 		onSettings() {
