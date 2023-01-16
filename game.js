@@ -300,6 +300,7 @@ const stateMachine = new StateMachine({
 			}));
 			objects.set("singleplayer", new TextButton(960, 520, "Singleplayer", stateMachine.toSingleplayer, 960));
 			objects.set("settings", new TextButton(960, 680, "Settings", stateMachine.toSettings, 960));
+			objects.set("instructions", new TextButton(960, 840, "Instructions", stateMachine.toInstructions, 960));
 			objects.set("credits", new TextButton(960, 1000, "Credits", stateMachine.toCredits, 960));
 			objects.set("mute", new MuteButton());
 		},
@@ -333,6 +334,30 @@ const stateMachine = new StateMachine({
 			objects.set("volume", new Slider(1200, 760, 960, "volume", 0, 100, 10, false, () => {
 				for (const sound of Object.values(sounds)) {
 					sound.volume = settings.volume / 100;
+				}
+			}));
+			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
+			objects.set("mute", new MuteButton());
+		},
+		onInstructions() {
+			clear();
+			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
+			objects.set("instructions", new Drawable(() => {
+				context.fillStyle = "white";
+				context.fontSize = 8;
+				const texts = [
+					"Move: Left/Right",
+					"Rotate Clockwise: Up/X",
+					"Rotate Counterclockwise: Z",
+					"Rotate Twice: Left Shift",
+					"Soft Drop: Down",
+					"Hard Drop: Space",
+					"Hold: C",
+					"Restart: R",
+					"Quit: Esc"
+				];
+				for (const i in texts) {
+					context.fillText(texts[i], 960, 280 + i * 80);
 				}
 			}));
 			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));

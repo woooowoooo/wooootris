@@ -28,7 +28,8 @@
 ## Documentation
 - [x] README.md
 - [x] This to-do list
-- [ ] Instructions
+- [x] Instructions
+	- [ ] Handle custom keybinds
 
 # Gameplay
 - [x] Grid
@@ -65,7 +66,7 @@
 - [x] Drops
 	- [x] Hard (Space)
 	- [x] Soft (Down)
-- [ ] Changeable keybinds
+- [ ] Custom keybinds
 
 # Scoring
 - [x] Line clear
