@@ -2,6 +2,7 @@
 - [x] Tetris background
 - [x] Main Menu
 	- [ ] Graphic title
+	- [ ] Singleplayer menu
 - [x] Ingame
 	- [x] Center queued pieces
 	- [x] Show score effects (combo, b2b)
@@ -24,6 +25,11 @@
 - [ ] Death sound
 - [ ] Slider move sound
 
+## Documentation
+- [x] README.md
+- [x] This to-do list
+- [ ] Instructions
+
 # Gameplay
 - [x] Grid
 	- [x] Hidden rows at top
@@ -39,13 +45,16 @@
 - [x] Death
 	- [x] Return scores
 	- [x] Retry (R)
-- [ ] Modes
-	- [ ] Regular
-		- [ ] Levels
-		- [ ] Speed up gravity over time
-	- [x] 40 lines (sprint)
-	- [x] No gravity (default)
 - [x] Lock to 60 fps
+
+## Modes
+- [ ] Regular
+	- [ ] Levels
+	- [ ] Speed up gravity over time
+- [x] 40 lines (sprint)
+- [x] No gravity (default)
+- [ ] Multiplayer
+	- [ ] Peer-to-peer connection
 
 ## Movement Controls
 - [x] Moving pieces (Left, Right)
@@ -56,7 +65,7 @@
 - [x] Drops
 	- [x] Hard (Space)
 	- [x] Soft (Down)
-
+- [ ] Changeable keybinds
 
 # Scoring
 - [x] Line clear
