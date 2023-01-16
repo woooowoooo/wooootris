@@ -241,9 +241,9 @@ const stateMachine = new StateMachine({
 			to: "settings"
 		},
 		{
-			name: "toInstructions",
+			name: "toControls",
 			from: "menu",
-			to: "instructions"
+			to: "controls"
 		},
 		{
 			name: "toCredits",
@@ -298,10 +298,10 @@ const stateMachine = new StateMachine({
 				context.fontSize = 20;
 				context.fillText("wooootris", 960, 320);
 			}));
-			objects.set("singleplayer", new TextButton(960, 520, "Singleplayer", stateMachine.toSingleplayer, 960));
-			objects.set("settings", new TextButton(960, 680, "Settings", stateMachine.toSettings, 960));
-			objects.set("instructions", new TextButton(960, 840, "Instructions", stateMachine.toInstructions, 960));
-			objects.set("credits", new TextButton(960, 1000, "Credits", stateMachine.toCredits, 960));
+			objects.set("singleplayer", new TextButton(960, 520, "1-player", stateMachine.toSingleplayer, 640));
+			objects.set("settings", new TextButton(960, 680, "Settings", stateMachine.toSettings, 640));
+			objects.set("controls", new TextButton(960, 840, "Controls", stateMachine.toControls, 640));
+			objects.set("credits", new TextButton(960, 1000, "Credits", stateMachine.toCredits, 640));
 			objects.set("mute", new MuteButton());
 		},
 		onSingleplayer() {
@@ -339,10 +339,10 @@ const stateMachine = new StateMachine({
 			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
-		onInstructions() {
+		onControls() {
 			clear();
 			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
-			objects.set("instructions", new Drawable(() => {
+			objects.set("controls", new Drawable(() => {
 				context.fillStyle = "white";
 				context.fontSize = 8;
 				const texts = {
