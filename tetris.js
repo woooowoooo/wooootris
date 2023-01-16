@@ -459,7 +459,7 @@ export function render(context) {
 	const fortyLineTexts = {
 		Time: (time / 1000).toFixed(3) + "s",
 		FTime: (highScores[mode] != null) ? ((highScores[mode] / 1000).toFixed(3) + "s") : "None",
-		Lines: `${totalLines} | 40`,
+		Lines: `${totalLines} / 40`,
 		Combo: combo,
 		B2B: hardMove
 	};

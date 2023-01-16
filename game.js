@@ -345,19 +345,25 @@ const stateMachine = new StateMachine({
 			objects.set("instructions", new Drawable(() => {
 				context.fillStyle = "white";
 				context.fontSize = 8;
-				const texts = [
-					"Move: Left/Right",
-					"Rotate Clockwise: Up/X",
-					"Rotate Counterclockwise: Z",
-					"Rotate Twice: Left Shift",
-					"Soft Drop: Down",
-					"Hard Drop: Space",
-					"Hold: C",
-					"Restart: R",
-					"Quit: Esc"
-				];
-				for (const i in texts) {
-					context.fillText(texts[i], 960, 280 + i * 80);
+				const texts = {
+					"Move Left": "Left",
+					"Move Right": "Right",
+					"Rotate CW": "Up / X",
+					"Rotate CCW": "Z",
+					"Rotate Twice": "Left Shift",
+					"Soft Drop": "Down",
+					"Hard Drop": "Space",
+					"Hold": "C",
+					"Restart": "R",
+					"Quit": "Esc"
+				};
+				let textY = 200;
+				for (const [name, keybind] of Object.entries(texts)) {
+					context.textAlign = "right";
+					context.fillText(name + ":", 960, textY);
+					context.textAlign = "left";
+					context.fillText(keybind, 1080, textY);
+					textY += 80;
 				}
 			}));
 			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
