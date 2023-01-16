@@ -11,7 +11,6 @@ const mouse = {
 const images = {};
 const sounds = {};
 let paused = false;
-let mode = "";
 const objects = new Map();
 const defaultSettings = {
 	muted: false,
@@ -21,7 +20,7 @@ const defaultSettings = {
 	das: 10
 };
 const settings = new Proxy(JSON.parse(localStorage.getItem("wooootrisSettings")) ?? defaultSettings, {
-	get: function (target, property) {
+	get: function (_, property) {
 		return Reflect.get(...arguments) ?? defaultSettings[property];
 	},
 	set: function (target, property, value) {
@@ -37,14 +36,14 @@ Object.defineProperty(context, "fontSize", {
 		context.font = `${size * 1024 / 100}px "Commodore 64", sans-serif`;
 	}
 });
-function clear() {
+export function clear() {
 	context.clearRect(0, 0, 1920, 1280);
 	for (const object of Array.from(objects.values()).filter(object => object.clear != null)) {
 		object.clear();
 	}
 	objects.clear();
 }
-function render() {
+export function render() {
 	context.clearRect(0, 0, 1920, 1280);
 	for (const object of objects.values()) {
 		object.draw();
@@ -55,7 +54,7 @@ function getMousePosition(event) {
 	mouse.x = (event.clientX - bounds.left) * 1920 / (bounds.right - bounds.left);
 	mouse.y = (event.clientY - bounds.top) * 1280 / (bounds.bottom - bounds.top);
 }
-function wrapClickEvent(callback, condition = () => true) {
+export function wrapClickEvent(callback, condition = () => true) {
 	// TODO: Figure out a way to use {once: true}
 	function fullCallback(e) {
 		if (condition(e)) {
@@ -67,8 +66,30 @@ function wrapClickEvent(callback, condition = () => true) {
 	return fullCallback;
 }
 canvas.addEventListener("click", getMousePosition);
+// Loading assets
+export async function loadResources() {
+	const imageNames = ["background", "buttonStart", "buttonMiddle", "buttonEnd", "soundOn", "soundOff"];
+	const soundNames = ["mainTheme"];
+	const promises = [];
+	const initialize = function (cache, id, path, type, eventType) {
+		cache[id] = document.createElement(type);
+		cache[id].src = path;
+		promises.push(new Promise(resolve => {
+			cache[id].addEventListener(eventType, resolve, {once: true});
+		}));
+	};
+	for (const name of imageNames) {
+		initialize(images, name, `images/${name}.png`, "img", "load");
+	}
+	for (const name of soundNames) {
+		initialize(sounds, name, `sounds/${name}.mp3`, "audio", "canplaythrough");
+		sounds[name].muted = settings.muted;
+		sounds[name].volume = settings.volume / 100;
+	}
+	return Promise.all(promises);
+}
 // Classes
-class Drawable {
+export class Drawable {
 	constructor (draw) {
 		this.draw = draw;
 		draw();
@@ -85,7 +106,7 @@ class Button extends Drawable {
 		canvas.removeEventListener("click", this.fullCallback);
 	}
 }
-class MuteButton extends Button {
+export class MuteButton extends Button {
 	constructor () {
 		const [X, Y, DX, DY] = [1920 - 96, 1280 - 96, 96, 96];
 		const hitbox = new Path2D();
@@ -106,7 +127,7 @@ class MuteButton extends Button {
 		super(hitbox, draw, callback);
 	}
 }
-class TextButton extends Button {
+export class TextButton extends Button {
 	constructor (x, y, text, callback, width, ignorePause = false) {
 		const buttonWidth = width ? width - 160 : Math.ceil(context.measureText(text).width / 32) * 32;
 		const hitbox = new Path2D();
@@ -125,7 +146,7 @@ class TextButton extends Button {
 		super(hitbox, draw, callback, ignorePause);
 	}
 }
-class TextToggle extends TextButton {
+export class TextToggle extends TextButton {
 	constructor (x, y, settingName) {
 		function callback() {
 			settings[settingName] = !settings[settingName];
@@ -135,7 +156,7 @@ class TextToggle extends TextButton {
 		super(x, y, settings[settingName], callback, 480);
 	}
 }
-class Slider extends Drawable {
+export class Slider extends Drawable {
 	constructor (x, y, width, settingName, start, end, step = 1, intValues = true, callback) {
 		function draw() {
 			context.fillStyle = "hsl(30, 5%, 80%)";
@@ -192,25 +213,4 @@ class Slider extends Drawable {
 		canvas.removeEventListener("mouseup", this.onMouseUp);
 	}
 }
-// Loading assets
-async function loadResources() {
-	const imageNames = ["background", "buttonStart", "buttonMiddle", "buttonEnd", "soundOn", "soundOff"];
-	const soundNames = ["mainTheme"];
-	const promises = [];
-	const initialize = function (cache, id, path, type, eventType) {
-		cache[id] = document.createElement(type);
-		cache[id].src = path;
-		promises.push(new Promise(resolve => {
-			cache[id].addEventListener(eventType, resolve, {once: true});
-		}));
-	};
-	for (const name of imageNames) {
-		initialize(images, name, `images/${name}.png`, "img", "load");
-	}
-	for (const name of soundNames) {
-		initialize(sounds, name, `sounds/${name}.mp3`, "audio", "canplaythrough");
-		sounds[name].muted = settings.muted;
-		sounds[name].volume = settings.volume / 100;
-	}
-	return Promise.all(promises);
-}
+export {canvas, context, images, sounds, paused, objects, settings};

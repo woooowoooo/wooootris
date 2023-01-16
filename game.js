@@ -1,4 +1,5 @@
 import StateMachine from "./state-machine/module.js";
+import {context, images, sounds, paused, objects, settings, clear, render, wrapClickEvent, Drawable, MuteButton, TextButton, TextToggle, Slider, loadResources} from "./index.js";
 import {newGame, onKeyDown, onKeyUp, update, render as tetrisRender} from "./tetris.js";
 // State machine
 const stateMachine = new StateMachine({
