@@ -160,22 +160,32 @@ export class TextToggle extends TextButton {
 	}
 }
 export class Slider extends Drawable {
+	static BAR_THICKNESS = 8;
+	static TICK_THICKNESS = 12; // Constant but not really
+	static HEIGHT = 24;
 	constructor (x, y, width, settingName, start, end, step = 1, intValues = true, callback) {
 		function draw() {
+			// Slider bar
 			context.fillStyle = "hsl(30, 5%, 80%)";
-			context.fillRect(x - width / 2, y - 4, width, 8);
+			context.fillRect(x - width / 2, y - Slider.BAR_THICKNESS / 2, width, Slider.BAR_THICKNESS);
+			// Tick marks
 			const divisions = (end - start) / step;
-			for (let i = 0; i <= divisions; i++) {
-				context.fillRect(x - width / 2 + i * width / divisions - 8, y - 16, 16, 32);
+			for (let i = 1; i < divisions; i++) {
+				context.fillRect(x - width / 2 + i * width / divisions - Slider.TICK_THICKNESS / 2, y - Slider.HEIGHT / 2, Slider.TICK_THICKNESS, Slider.HEIGHT);
 			}
+			// End ticks
 			context.fillStyle = "white";
+			context.fillRect(x - width / 2 - Slider.TICK_THICKNESS * 3 / 4, y - Slider.HEIGHT * 3 / 4, Slider.TICK_THICKNESS * 3 / 2, Slider.HEIGHT * 3 / 2);
+			context.fillRect(x + width / 2 - Slider.TICK_THICKNESS * 3 / 4, y - Slider.HEIGHT * 3 / 4, Slider.TICK_THICKNESS * 3 / 2, Slider.HEIGHT * 3 / 2);
+			// Slider
 			const position = (settings[settingName] - start) / (end - start) * width + x - width / 2;
 			context.fillRect(position - 20, y - 32, 40, 64);
-			context.fontSize = 4;
+			context.fontSize = 6;
 			context.textAlign = "right";
-			context.fillText(start, x - width / 2 - 40, y + 16);
+			context.fillText(start, x - width / 2 - 40, y + 20);
 			context.textAlign = "left";
-			context.fillText(end, x + width / 2 + 40, y + 16);
+			context.fillText(end, x + width / 2 + 40, y + 20);
+			context.textAlign = "center";
 		}
 		super(draw);
 		// Add sliding
