@@ -10,7 +10,9 @@ const mouse = {
 };
 const images = {};
 const sounds = {};
-let paused = false;
+const state = { // Only an object to get around export limitations
+	state: "boot"
+};
 const objects = new Map();
 const defaultSettings = {
 	muted: false,
@@ -54,10 +56,10 @@ function getMousePosition(event) {
 	mouse.x = (event.clientX - bounds.left) * 1920 / (bounds.right - bounds.left);
 	mouse.y = (event.clientY - bounds.top) * 1280 / (bounds.bottom - bounds.top);
 }
-export function wrapClickEvent(callback, condition = () => true) {
+function wrapClickEvent(callback, hitbox, checkCondition) {
 	// TODO: Figure out a way to use {once: true}
-	function fullCallback(e) {
-		if (condition(e)) {
+	function fullCallback() {
+		if (context.isPointInPath(hitbox, mouse.x, mouse.y) && checkCondition()) {
 			callback();
 			canvas.removeEventListener("click", fullCallback);
 		}
@@ -96,11 +98,12 @@ export class Drawable {
 	}
 }
 class Button extends Drawable {
-	constructor (hitbox, draw, callback, ignorePause = false) {
+	constructor (hitbox, draw, callback) {
 		super(draw);
 		this.callback = callback;
 		this.hitbox = hitbox;
-		this.fullCallback = wrapClickEvent(callback, () => context.isPointInPath(hitbox, mouse.x, mouse.y) && (!paused || ignorePause));
+		this.state = state.state;
+		this.fullCallback = wrapClickEvent(callback, hitbox, () => state.state === this.state);
 	}
 	clear() {
 		canvas.removeEventListener("click", this.fullCallback);
@@ -128,7 +131,7 @@ export class MuteButton extends Button {
 	}
 }
 export class TextButton extends Button {
-	constructor (x, y, text, callback, width, ignorePause = false) {
+	constructor (x, y, text, callback, width) {
 		const buttonWidth = width ? width - 160 : Math.ceil(context.measureText(text).width / 32) * 32;
 		const hitbox = new Path2D();
 		hitbox.rect(x - buttonWidth / 2 - 64, y, buttonWidth + 128, 128);
@@ -143,7 +146,7 @@ export class TextButton extends Button {
 			context.fillStyle = "black";
 			context.fillText(text, x, y + 92);
 		}
-		super(hitbox, draw, callback, ignorePause);
+		super(hitbox, draw, callback);
 	}
 }
 export class TextToggle extends TextButton {
@@ -213,4 +216,4 @@ export class Slider extends Drawable {
 		canvas.removeEventListener("mouseup", this.onMouseUp);
 	}
 }
-export {canvas, context, images, sounds, paused, objects, settings};
+export {canvas, context, images, sounds, state, objects, settings};

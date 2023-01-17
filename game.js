@@ -1,5 +1,9 @@
 import StateMachine from "./state-machine/module.js";
-import {context, images, sounds, paused, objects, settings, clear, render, wrapClickEvent, Drawable, MuteButton, TextButton, TextToggle, Slider, loadResources} from "./index.js";
+import {
+	canvas, context, images, sounds, state, objects, settings,
+	clear, render, loadResources,
+	Drawable, MuteButton, TextButton, TextToggle, Slider
+} from "./index.js";
 import {newGame, onKeyDown, onKeyUp, update, render as tetrisRender} from "./tetris.js";
 // State machine
 const stateMachine = new StateMachine({
@@ -49,6 +53,7 @@ const stateMachine = new StateMachine({
 	methods: {
 		onTransition(lifecycle) {
 			console.log(`Transition: ${lifecycle.transition}\tNew State: ${lifecycle.to}`);
+			state.state = lifecycle.to;
 		},
 		async onBoot() {
 			// Loading screen
@@ -72,7 +77,7 @@ const stateMachine = new StateMachine({
 			context.fillText("Loading finished.", 960, 400);
 			context.fillText("CLICK ANYWHERE", 960, 800);
 			context.fillText("TO CONTINUE", 960, 960);
-			wrapClickEvent(stateMachine.toMenu);
+			canvas.addEventListener("click", stateMachine.toMenu, {once: true});
 		},
 		onMenu() {
 			clear();
@@ -182,7 +187,6 @@ const stateMachine = new StateMachine({
 		onGameOver(_, text) {
 			window.removeEventListener("keydown", onKeyDown);
 			window.removeEventListener("keyup", onKeyUp);
-			paused = true;
 			for (const sound of Object.values(sounds).filter(sound => !sound.paused)) {
 				sound.pause();
 			}
@@ -200,11 +204,10 @@ const stateMachine = new StateMachine({
 					textY += 100;
 				}
 			}));
-			objects.set("menu", new TextButton(672, 920, "Menu", stateMachine.toMenu, 480, true));
-			objects.set("retry", new TextButton(1248, 920, "Retry", stateMachine.retry, 480, true));
+			objects.set("menu", new TextButton(672, 920, "Menu", stateMachine.toMenu, 480));
+			objects.set("retry", new TextButton(1248, 920, "Retry", stateMachine.retry, 480));
 		},
 		onLeaveGameOver() {
-			paused = false;
 			for (const sound of Object.values(sounds).filter(sound => sound.paused)) {
 				sound.play();
 			}
