@@ -1,3 +1,4 @@
+import {context, settings} from "./index.js";
 // Constants
 const ROWS = 20;
 const TCOLS = 10;
@@ -101,7 +102,6 @@ let highScores = new Proxy(JSON.parse(localStorage.getItem("wooootrisHighScores"
 		return valid;
 	}
 });
-let settings = null;
 let mode = null;
 const heldKeys = new Set();
 let cells = Array(CELL_AMOUNT).fill(" ");
@@ -219,8 +219,7 @@ function newBag() {
 function newPosition(type, center, rotation = 0) {
 	return BLOCKS[type][type !== "O" ? rotation : 0].map(offset => center + offset);
 }
-export function newGame(newMode, newSettings = settings) {
-	settings = newSettings;
+export function newGame(newMode = mode) {
 	mode = newMode;
 	heldKeys.clear();
 	cells = Array(CELL_AMOUNT).fill(" ");
@@ -250,7 +249,7 @@ function endGame(win) {
 		endGameText = ["Retry?"];
 		return;
 	}
-	highScores[mode ?? newMode] = mode === "fortyLines" ? Math.min(time, highScores[mode] ?? Infinity) : Math.max(score, highScores[mode] ?? 0);
+	highScores[mode] = mode === "fortyLines" ? Math.min(time, highScores[mode] ?? Infinity) : Math.max(score, highScores[mode] ?? 0);
 	let endText = {
 		default: [`Score: ${score}`, `High Score: ${highScores[mode]}`],
 		fortyLines: [`Time: ${time / 1000} seconds`, `Fastest Time: ${highScores[mode] / 1000} seconds`]
@@ -414,7 +413,7 @@ export function update() {
 	}
 	return [mode === "fortyLines" ? true : changed, endGameText];
 }
-export function render(context) {
+export function render() {
 	changed = false;
 	context.fillStyle = "white";
 	context.fillRect(START_X - OUTLINE_WIDTH, START_Y - OUTLINE_WIDTH, TCOLS * CELL_SIZE + 2 * OUTLINE_WIDTH, ROWS * CELL_SIZE + 2 * OUTLINE_WIDTH);

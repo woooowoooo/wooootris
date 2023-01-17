@@ -173,15 +173,14 @@ const stateMachine = new StateMachine({
 			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
-		onMain(_, newMode = mode) {
-			mode = newMode;
+		onMain(_, newMode) {
 			clear();
-			newGame(mode, settings);
+			newGame(newMode);
 			window.addEventListener("keydown", onKeyDown);
 			window.addEventListener("keyup", onKeyUp);
 			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
 			objects.set("mute", new MuteButton());
-			objects.set("tetris", new Drawable(() => tetrisRender(context)));
+			objects.set("tetris", new Drawable(tetrisRender));
 			requestAnimationFrame(loop);
 		},
 		onGameOver(_, text) {
