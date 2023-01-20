@@ -5,6 +5,7 @@ import {
 	Drawable, MuteButton, TextButton, TextToggle, Slider
 } from "./index.js";
 import {newGame, onKeyDown, onKeyUp, update, render as tetrisRender} from "./tetris.js";
+import {connect} from "./p2ptest.js";
 // State machine
 const stateMachine = new StateMachine({
 	init: "boot",
@@ -23,6 +24,11 @@ const stateMachine = new StateMachine({
 			name: "start",
 			from: "singleplayer",
 			to: "main"
+		},
+		{
+			name: "toMultiplayer",
+			from: "menu",
+			to: "multiplayer"
 		},
 		{
 			name: "toSettings",
@@ -88,10 +94,11 @@ const stateMachine = new StateMachine({
 				context.fontSize = 20;
 				context.fillText("wooootris", 960, 320);
 			}));
-			objects.set("singleplayer", new TextButton(960, 520, "1-player", stateMachine.toSingleplayer, 640));
-			objects.set("settings", new TextButton(960, 680, "Settings", stateMachine.toSettings, 640));
-			objects.set("controls", new TextButton(960, 840, "Controls", stateMachine.toControls, 640));
-			objects.set("credits", new TextButton(960, 1000, "Credits", stateMachine.toCredits, 640));
+			objects.set("singleplayer", new TextButton(960, 440, "1-player", stateMachine.toSingleplayer, 640));
+			objects.set("multiplayer", new TextButton(960, 600, "2-player", stateMachine.toMultiplayer, 640));
+			objects.set("settings", new TextButton(960, 760, "Settings", stateMachine.toSettings, 640));
+			objects.set("controls", new TextButton(960, 920, "Controls", stateMachine.toControls, 640));
+			objects.set("credits", new TextButton(960, 1080, "Credits", stateMachine.toCredits, 640));
 			objects.set("mute", new MuteButton());
 		},
 		onSingleplayer() {
@@ -99,11 +106,24 @@ const stateMachine = new StateMachine({
 			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
 			objects.set("title", new Drawable(() => {
 				context.fillStyle = "white";
-				context.fontSize = 20;
-				context.fillText("wooootris", 960, 320);
+				context.fontSize = 12;
+				context.fillText("Select mode", 960, 400);
 			}));
 			objects.set("regular", new TextButton(960, 520, "Regular", () => stateMachine.start("default"), 640));
 			objects.set("fortyLines", new TextButton(960, 680, "40 Lines", () => stateMachine.start("fortyLines"), 640));
+			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
+			objects.set("mute", new MuteButton());
+		},
+		onMultiplayer() {
+			clear();
+			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
+			objects.set("title", new Drawable(() => {
+				context.fillStyle = "white";
+				context.fontSize = 12;
+				context.fillText("Connect", 960, 400);
+			}));
+			objects.set("connect", new TextButton(560, 680, "1", () => connect("wooootris-1"), 640));
+			objects.set("connect", new TextButton(1360, 680, "2", () => connect("wooootris-2"), 640));
 			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
