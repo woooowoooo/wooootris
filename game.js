@@ -41,6 +41,11 @@ const stateMachine = new StateMachine({
 			to: "controls"
 		},
 		{
+			name: "toHelp",
+			from: "menu",
+			to: "help"
+		},
+		{
 			name: "toCredits",
 			from: "menu",
 			to: "credits"
@@ -92,13 +97,14 @@ const stateMachine = new StateMachine({
 			objects.set("title", new Drawable(() => {
 				context.fillStyle = "white";
 				context.fontSize = 20;
-				context.fillText("wooootris", 960, 320);
+				context.fillText("wooootris", 960, 400);
 			}));
-			objects.set("singleplayer", new TextButton(960, 440, "1-player", stateMachine.toSingleplayer, 640));
-			objects.set("multiplayer", new TextButton(960, 600, "2-player", stateMachine.toMultiplayer, 640));
-			objects.set("settings", new TextButton(960, 760, "Settings", stateMachine.toSettings, 640));
-			objects.set("controls", new TextButton(960, 920, "Controls", stateMachine.toControls, 640));
-			objects.set("credits", new TextButton(960, 1080, "Credits", stateMachine.toCredits, 640));
+			objects.set("singleplayer", new TextButton(560, 600, "1-player", stateMachine.toSingleplayer, 640));
+			objects.set("multiplayer", new TextButton(1360, 600, "2-player", stateMachine.toMultiplayer, 640));
+			objects.set("settings", new TextButton(560, 760, "Settings", stateMachine.toSettings, 640));
+			objects.set("controls", new TextButton(1360, 760, "Controls", stateMachine.toControls, 640));
+			objects.set("help", new TextButton(560, 920, "Help", stateMachine.toHelp, 640));
+			objects.set("credits", new TextButton(1360, 920, "Credits", stateMachine.toCredits, 640));
 			objects.set("mute", new MuteButton());
 		},
 		onSingleplayer() {
@@ -175,6 +181,20 @@ const stateMachine = new StateMachine({
 					context.fillText(keybind, 1080, textY);
 					textY += 80;
 				}
+			}));
+			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
+			objects.set("mute", new MuteButton());
+		},
+		onHelp() {
+			clear();
+			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
+			objects.set("help", new Drawable(() => {
+				context.fillStyle = "white";
+				context.fontSize = 6;
+				context.fillText("ARR (Auto-Repeat Rate) is how fast a", 960, 400);
+				context.fillText("piece moves when a move key is held", 960, 480);
+				context.fillText("DAS (Delayed Auto Shift) is how many", 960, 640);
+				context.fillText("frames happen before autorepeat engages", 960, 720);
 			}));
 			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());

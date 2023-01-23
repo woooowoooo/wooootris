@@ -17,7 +17,6 @@
 		- [x] Automatic Repeat Rate
 		- [x] Delayed Auto Shift
 		- [ ] Soft Drop Factor
-- [x] Credits
 
 ## Sounds
 - [ ] More fitting music
@@ -28,8 +27,10 @@
 ## Documentation
 - [x] README.md
 - [x] This to-do list
-- [x] Instructions
+- [x] Controls
 	- [ ] Handle custom keybinds
+- [x] Instructions
+- [x] Credits
 
 # Gameplay
 - [x] Grid
