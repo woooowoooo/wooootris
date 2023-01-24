@@ -99,12 +99,12 @@ const stateMachine = new StateMachine({
 				context.fontSize = 20;
 				context.fillText("wooootris", 960, 400);
 			}));
-			objects.set("singleplayer", new TextButton(560, 600, "1-player", stateMachine.toSingleplayer, 640));
-			objects.set("multiplayer", new TextButton(1360, 600, "2-player", stateMachine.toMultiplayer, 640));
-			objects.set("settings", new TextButton(560, 760, "Settings", stateMachine.toSettings, 640));
-			objects.set("controls", new TextButton(1360, 760, "Controls", stateMachine.toControls, 640));
-			objects.set("help", new TextButton(560, 920, "Help", stateMachine.toHelp, 640));
-			objects.set("credits", new TextButton(1360, 920, "Credits", stateMachine.toCredits, 640));
+			objects.set("singleplayer", new TextButton(560, 640, "1-player", stateMachine.toSingleplayer, 640));
+			objects.set("multiplayer", new TextButton(1360, 640, "2-player", stateMachine.toMultiplayer, 640));
+			objects.set("settings", new TextButton(560, 800, "Settings", stateMachine.toSettings, 640));
+			objects.set("controls", new TextButton(1360, 800, "Controls", stateMachine.toControls, 640));
+			objects.set("help", new TextButton(560, 960, "Help", stateMachine.toHelp, 640));
+			objects.set("credits", new TextButton(1360, 960, "Credits", stateMachine.toCredits, 640));
 			objects.set("mute", new MuteButton());
 		},
 		onSingleplayer() {
@@ -115,9 +115,9 @@ const stateMachine = new StateMachine({
 				context.fontSize = 12;
 				context.fillText("Select mode", 960, 400);
 			}));
-			objects.set("regular", new TextButton(960, 520, "Regular", () => stateMachine.start("default"), 640));
-			objects.set("fortyLines", new TextButton(960, 680, "40 Lines", () => stateMachine.start("fortyLines"), 640));
-			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
+			objects.set("regular", new TextButton(960, 600, "Regular", () => stateMachine.start("default"), 640));
+			objects.set("fortyLines", new TextButton(960, 760, "40 Lines", () => stateMachine.start("fortyLines"), 640));
+			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
 		onMultiplayer() {
@@ -126,11 +126,11 @@ const stateMachine = new StateMachine({
 			objects.set("title", new Drawable(() => {
 				context.fillStyle = "white";
 				context.fontSize = 12;
-				context.fillText("Connect", 960, 400);
+				context.fillText("Connect", 960, 320);
 			}));
 			objects.set("connect", new TextButton(560, 680, "1", () => connect("wooootris-1"), 640));
 			objects.set("connect", new TextButton(1360, 680, "2", () => connect("wooootris-2"), 640));
-			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
+			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
 		onSettings() {
@@ -152,7 +152,7 @@ const stateMachine = new StateMachine({
 					sound.volume = settings.volume / 100;
 				}
 			}));
-			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
+			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
 		onControls() {
@@ -182,7 +182,7 @@ const stateMachine = new StateMachine({
 					textY += 80;
 				}
 			}));
-			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
+			objects.set("return", new TextButton(960, 1040, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
 		onHelp() {
@@ -191,12 +191,12 @@ const stateMachine = new StateMachine({
 			objects.set("help", new Drawable(() => {
 				context.fillStyle = "white";
 				context.fontSize = 6;
-				context.fillText("ARR (Auto-Repeat Rate) is how fast a", 960, 400);
-				context.fillText("piece moves when a move key is held", 960, 480);
-				context.fillText("DAS (Delayed Auto Shift) is how many", 960, 640);
-				context.fillText("frames happen before autorepeat engages", 960, 720);
+				context.fillText("ARR (Auto-Repeat Rate) is how fast a", 960, 320);
+				context.fillText("piece moves when a move key is held", 960, 400);
+				context.fillText("DAS (Delayed Auto Shift) is how many", 960, 560);
+				context.fillText("frames happen before autorepeat engages", 960, 640);
 			}));
-			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
+			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
 		onCredits() {
@@ -210,7 +210,7 @@ const stateMachine = new StateMachine({
 				context.fillText("Inspiration and testing", 960, 640);
 				context.fillText("yayuuuhhhh", 960, 720);
 			}));
-			objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
+			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
 		onMain(_, newMode) {
@@ -243,8 +243,8 @@ const stateMachine = new StateMachine({
 					textY += 100;
 				}
 			}));
-			objects.set("menu", new TextButton(672, 920, "Menu", stateMachine.toMenu, 480));
-			objects.set("retry", new TextButton(1248, 920, "Retry", stateMachine.retry, 480));
+			objects.set("menu", new TextButton(672, 960, "Menu", stateMachine.toMenu, 480));
+			objects.set("retry", new TextButton(1248, 960, "Retry", stateMachine.retry, 480));
 		},
 		onLeaveGameOver() {
 			for (const sound of Object.values(sounds).filter(sound => sound.paused)) {
