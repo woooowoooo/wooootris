@@ -137,7 +137,7 @@ const stateMachine = new StateMachine({
 				context.textAlign = "left";
 				context.fillText(peer.id, 720, 480 + 20, 960);
 			}));
-			objects.set("idInput", new TextInput(1200, 600, 960, "otherId"));
+			objects.set("idInput", new TextInput(720, 600, 960, "otherId"));
 			objects.set("connect", new TextButton(960, 760, "Connect", () => connect(settings.otherId), 640));
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
@@ -154,9 +154,9 @@ const stateMachine = new StateMachine({
 				context.fillText("Volume:", 600, 760 + 28);
 			}));
 			objects.set("grid", new TextToggle(1200, 280 - 20 + 28 - 92, "grid"));
-			objects.set("arr", new Slider(1200, 440, 960, "arr", 0, 5));
-			objects.set("das", new Slider(1200, 600, 960, "das", 0, 20));
-			objects.set("volume", new Slider(1200, 760, 960, "volume", 0, 100, 10, false, () => {
+			objects.set("arr", new Slider(720, 440, 960, "arr", 0, 5));
+			objects.set("das", new Slider(720, 600, 960, "das", 0, 20));
+			objects.set("volume", new Slider(720, 760, 960, "volume", 0, 100, 10, false, () => {
 				for (const sound of Object.values(sounds)) {
 					sound.volume = settings.volume / 100;
 				}

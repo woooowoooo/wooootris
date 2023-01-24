@@ -167,31 +167,31 @@ export class Slider extends Drawable {
 		function draw() {
 			// Slider bar
 			context.fillStyle = "hsl(30, 5%, 80%)";
-			context.fillRect(x - width / 2, y - Slider.BAR_THICKNESS / 2, width, Slider.BAR_THICKNESS);
+			context.fillRect(x, y - Slider.BAR_THICKNESS / 2, width, Slider.BAR_THICKNESS);
 			// Tick marks
 			const divisions = (end - start) / step;
 			for (let i = 1; i < divisions; i++) {
-				context.fillRect(x - width / 2 + i * width / divisions - Slider.TICK_THICKNESS / 2, y - Slider.HEIGHT / 2, Slider.TICK_THICKNESS, Slider.HEIGHT);
+				context.fillRect(x + i * width / divisions - Slider.TICK_THICKNESS / 2, y - Slider.HEIGHT / 2, Slider.TICK_THICKNESS, Slider.HEIGHT);
 			}
 			// End ticks
 			context.fillStyle = "white";
-			context.fillRect(x - width / 2 - Slider.TICK_THICKNESS * 3 / 4, y - Slider.HEIGHT * 3 / 4, Slider.TICK_THICKNESS * 3 / 2, Slider.HEIGHT * 3 / 2);
-			context.fillRect(x + width / 2 - Slider.TICK_THICKNESS * 3 / 4, y - Slider.HEIGHT * 3 / 4, Slider.TICK_THICKNESS * 3 / 2, Slider.HEIGHT * 3 / 2);
+			context.fillRect(x - Slider.TICK_THICKNESS * 3 / 4, y - Slider.HEIGHT * 3 / 4, Slider.TICK_THICKNESS * 3 / 2, Slider.HEIGHT * 3 / 2);
+			context.fillRect(x + width - Slider.TICK_THICKNESS * 3 / 4, y - Slider.HEIGHT * 3 / 4, Slider.TICK_THICKNESS * 3 / 2, Slider.HEIGHT * 3 / 2);
 			// Slider
-			const position = (settings[settingName] - start) / (end - start) * width + x - width / 2;
+			const position = (settings[settingName] - start) / (end - start) * width + x;
 			context.fillRect(position - 20, y - 32, 40, 64);
 			context.fontSize = 6;
 			context.textAlign = "right";
-			context.fillText(start, x - width / 2 - 40, y + 20);
+			context.fillText(start, x - 40, y + 20);
 			context.textAlign = "left";
-			context.fillText(end, x + width / 2 + 40, y + 20);
+			context.fillText(end, x + width + 40, y + 20);
 			context.textAlign = "center";
 		}
 		super(draw);
 		// Add sliding
 		let isSliding = false;
 		const hitbox = new Path2D();
-		hitbox.rect(x - width / 2 - 20, y - 32, width + 40, 64);
+		hitbox.rect(x - 20, y - 32, width + 40, 64);
 		hitbox.closePath();
 		this.onMouseDown = e => {
 			getMousePosition(e);
@@ -203,7 +203,7 @@ export class Slider extends Drawable {
 		this.update = e => {
 			getMousePosition(e);
 			if (isSliding) {
-				let value = (mouse.x - (x - width / 2)) / width * (end - start) + start;
+				let value = (mouse.x - x) / width * (end - start) + start;
 				let constrainedValue = Math.max(start, Math.min(end, value));
 				settings[settingName] = intValues ? Math.round(constrainedValue) : constrainedValue;
 				if (callback != null) {
@@ -230,14 +230,14 @@ export class TextInput extends Button {
 	constructor (x, y, width, settingName) {
 		let buffer = settings[settingName] ?? "";
 		const hitbox = new Path2D();
-		hitbox.rect(x - width / 2, y - 32, width, 64);
+		hitbox.rect(x, y - 32, width, 64);
 		hitbox.closePath();
 		function draw() {
 			context.fillStyle = "white";
-			context.fillRect(x - width / 2, y + 32, width, 8);
+			context.fillRect(x, y + 32, width, 8);
 			context.fontSize = 6;
 			context.textAlign = "left";
-			context.fillText(buffer, x - width / 2, y + 20, width);
+			context.fillText(buffer, x, y + 20, width);
 		}
 		function onKeyDown(e) {
 			if (e.key === "Enter") {
