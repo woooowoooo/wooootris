@@ -227,6 +227,7 @@ export class Slider extends Drawable {
 }
 export class TextInput extends Button {
 	constructor (x, y, width, settingName) {
+		let self; // I'm sorry
 		let buffer = settings[settingName] ?? "";
 		const hitbox = new Path2D();
 		hitbox.rect(x, y - 32, width, 64);
@@ -237,20 +238,32 @@ export class TextInput extends Button {
 			context.fontSize = 6;
 			context.textAlign = "left";
 			context.fillText(buffer, x, y + 20, width);
-		}
+			if (self.focused) {
+				context.fillRect(x + context.measureText(buffer).width, y - 28, 8, 56);
+			}
+		};
 		function onKeyDown(e) {
 			if (e.key === "Enter") {
 				settings[settingName] = buffer;
 				window.removeEventListener("keydown", onKeyDown);
+				self.focused = false;
+				self.fullCallback = wrapClickEvent(focus, hitbox, () => state.state === self.state);
 			} else if (e.key === "Backspace") {
 				buffer = buffer.slice(0, -1);
 			} else if (e.key.length === 1) {
 				buffer += e.key;
 			}
 			render();
+		};
+		function focus() {
+			window.addEventListener("keydown", onKeyDown);
+			self.focused = true;
+			render();
 		}
-		super(hitbox, draw, () => window.addEventListener("keydown", onKeyDown));
+		super(hitbox, draw, focus);
 		this.buffer = buffer;
+		this.focused = false;
+		self = this;
 	}
 }
 export {canvas, context, images, sounds, state, objects, settings};
