@@ -1,9 +1,9 @@
 import "https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js";
 import {canvas} from "./index.js";
 let Peer = window.Peer; // Terrible workaround for importing PeerJS
-export let peer = new Peer(); // Change
+export let peer = new Peer("wooootris-" + Math.floor(Math.random() * 1_000_000).toString().padStart("0", 6));
 peer.on("open", () => {
-	console.log(`My peer ID is ${peer.id}`);
+	console.log(`My PeerJS ID is ${peer.id}`);
 });
 peer.on("connection", channel => {
 	channel.on("data", data => {
@@ -11,11 +11,13 @@ peer.on("connection", channel => {
 		window.alert(data);
 	});
 });
-export function connect(peerId) { // TODO: USE CONNECT IN GAME.JS
+peer.on("error", e => {
+	console.error(e);
+});
+export function connect(peerId) {
 	let channel = peer.connect(peerId);
 	channel.on("open", () => {
 		console.log(`Connected to ${peerId}`);
 		canvas.addEventListener("click", () => channel.send("Hi"));
 	});
 }
-// BIG FLAW IN PLAN: NO BROWSER INTEROP

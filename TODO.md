@@ -55,8 +55,13 @@
 	- [ ] Speed up gravity over time
 - [x] 40 lines (sprint)
 - [x] No gravity (default)
-- [ ] Multiplayer
-	- [ ] Peer-to-peer connection
+
+## Multiplayer
+- [x] Peer-to-peer connection
+	- [ ] Custom IDs
+- [ ] Gameplay
+	- [ ] Display
+	- [ ] Sync pieces
 
 ## Movement Controls
 - [x] Moving pieces (Left, Right)

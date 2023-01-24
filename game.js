@@ -136,9 +136,10 @@ const stateMachine = new StateMachine({
 				context.fontSize = 6;
 				context.textAlign = "left";
 				context.fillText(peer.id, 720, 480 + 20, 960);
+				context.fillText("wooootris-", 720, 600 + 20, 960);
 			}));
-			objects.set("idInput", new TextInput(720, 600, 960, "otherId"));
-			objects.set("connect", new TextButton(960, 760, "Connect", () => connect(settings.otherId), 640));
+			objects.set("idInput", new TextInput(1200, 600, 540, "otherId"));
+			objects.set("connect", new TextButton(960, 760, "Connect", () => connect("wooootris-" + settings.otherId), 640));
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
