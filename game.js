@@ -66,28 +66,36 @@ const stateMachine = new StateMachine({
 			console.log(`Transition: ${lifecycle.transition}\tNew State: ${lifecycle.to}`);
 			state.state = lifecycle.to;
 		},
+		onAfterTransition() {
+			render();
+		},
 		async onBoot() {
 			// Loading screen
-			context.fillStyle = "black";
-			context.fillRect(0, 0, 1920, 1280);
-			context.fillStyle = "white";
-			context.fontSize = 16;
-			context.textAlign = "center";
-			context.fillText("LOADING", 960, 400);
-			context.fontSize = 8;
-			context.fillText("If this doesn't go away,", 960, 800);
-			context.fillText("refresh the page.", 960, 960);
+			objects.set("background", new Drawable(() => {
+				context.fillStyle = "black";
+				context.fillRect(0, 0, 1920, 1280);
+			}));
+			objects.set("loading", new Drawable(() => {
+				context.fillStyle = "white";
+				context.fontSize = 16;
+				context.textAlign = "center";
+				context.fillText("LOADING", 960, 400);
+				context.fontSize = 8;
+				context.fillText("If this doesn't go away,", 960, 800);
+				context.fillText("refresh the page.", 960, 960);
+			}));
 			await loadResources();
 			console.log("Resources loaded.", images, sounds);
+			objects.delete("loading");
 			// Prompt for user interaction so autoplay won't get blocked
-			clear();
-			context.fillStyle = "black";
-			context.fillRect(0, 0, 1920, 1280);
-			context.fillStyle = "white";
-			context.fontSize = 8;
-			context.fillText("Loading finished.", 960, 400);
-			context.fillText("CLICK ANYWHERE", 960, 800);
-			context.fillText("TO CONTINUE", 960, 960);
+			objects.set("prompt", new Drawable(() => {
+				context.fillStyle = "white";
+				context.fontSize = 8;
+				context.textAlign = "center";
+				context.fillText("Loading finished.", 960, 400);
+				context.fillText("CLICK ANYWHERE", 960, 800);
+				context.fillText("TO CONTINUE", 960, 960);
+			}));
 			canvas.addEventListener("click", stateMachine.toMenu, {once: true});
 		},
 		onMenu() {

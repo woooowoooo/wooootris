@@ -94,7 +94,6 @@ export async function loadResources() {
 export class Drawable {
 	constructor (draw) {
 		this.draw = draw;
-		draw();
 	}
 }
 class Button extends Drawable {
