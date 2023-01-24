@@ -1,7 +1,7 @@
 import "https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js";
 import {canvas} from "./index.js";
 let Peer = window.Peer; // Terrible workaround for importing PeerJS
-let peer = new Peer("wooootris-1"); // Change
+export let peer = new Peer(); // Change
 peer.on("open", () => {
 	console.log(`My peer ID is ${peer.id}`);
 });
