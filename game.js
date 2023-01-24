@@ -2,7 +2,7 @@ import StateMachine from "./state-machine/module.js";
 import {
 	canvas, context, images, sounds, state, objects, settings,
 	clear, render, loadResources,
-	Drawable, MuteButton, TextButton, TextToggle, Slider
+	Drawable, MuteButton, TextButton, TextToggle, Slider, TextInput
 } from "./index.js";
 import {newGame, onKeyDown, onKeyUp, update, render as tetrisRender} from "./tetris.js";
 import {peer, connect} from "./p2ptest.js";
@@ -128,16 +128,17 @@ const stateMachine = new StateMachine({
 				context.fontSize = 12;
 				context.fillText("Connect", 960, 320);
 			}));
-			objects.set("connect", new TextButton(560, 680, "1", () => connect("wooootris-1"), 640));
-			objects.set("connect", new TextButton(1360, 680, "2", () => connect("wooootris-2"), 640));
 			objects.set("descriptions", new Drawable(() => {
 				context.fontSize = 8;
 				context.textAlign = "right";
 				context.fillText("Your ID:", 680, 480 + 28);
+				context.fillText("Other ID:", 680, 600 + 28);
 				context.fontSize = 6;
 				context.textAlign = "left";
 				context.fillText(peer.id, 720, 480 + 20, 960);
 			}));
+			objects.set("idInput", new TextInput(1200, 600, 960, "otherId"));
+			objects.set("connect", new TextButton(960, 760, "Connect", () => connect(settings.otherId), 640));
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},

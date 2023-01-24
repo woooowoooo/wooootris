@@ -226,4 +226,32 @@ export class Slider extends Drawable {
 		canvas.removeEventListener("mouseup", this.onMouseUp);
 	}
 }
+export class TextInput extends Button {
+	constructor (x, y, width, settingName) {
+		let buffer = settings[settingName] ?? "";
+		const hitbox = new Path2D();
+		hitbox.rect(x - width / 2, y - 32, width, 64);
+		hitbox.closePath();
+		function draw() {
+			context.fillStyle = "white";
+			context.fillRect(x - width / 2, y + 32, width, 8);
+			context.fontSize = 6;
+			context.textAlign = "left";
+			context.fillText(buffer, x - width / 2, y + 20, width);
+		}
+		function onKeyDown(e) {
+			if (e.key === "Enter") {
+				settings[settingName] = buffer;
+				window.removeEventListener("keydown", onKeyDown);
+			} else if (e.key === "Backspace") {
+				buffer = buffer.slice(0, -1);
+			} else if (e.key.length === 1) {
+				buffer += e.key;
+			}
+			render();
+		}
+		super(hitbox, draw, () => window.addEventListener("keydown", onKeyDown));
+		this.buffer = buffer;
+	}
+}
 export {canvas, context, images, sounds, state, objects, settings};
