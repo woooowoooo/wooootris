@@ -237,21 +237,23 @@ export class TextInput extends Button {
 			context.fillRect(x, y + 32, width, 8);
 			context.fontSize = 6;
 			context.textAlign = "left";
-			context.fillText(buffer, x, y + 20, width);
+			context.fillText(self.buffer, x, y + 20, width);
 			if (self.focused) {
-				context.fillRect(x + context.measureText(buffer).width, y - 28, 8, 56);
+				context.fillRect(x + context.measureText(self.buffer).width, y - 28, 8, 56);
 			}
 		};
 		function onKeyDown(e) {
 			if (e.key === "Enter") {
-				settings[settingName] = buffer;
+				if (settingName != null) {
+					settings[settingName] = self.buffer;
+				}
 				window.removeEventListener("keydown", onKeyDown);
 				self.focused = false;
 				self.fullCallback = wrapClickEvent(focus, hitbox, () => state.state === self.state);
 			} else if (e.key === "Backspace") {
-				buffer = buffer.slice(0, -1);
+				self.buffer = self.buffer.slice(0, -1);
 			} else if (e.key.length === 1) {
-				buffer += e.key;
+				self.buffer += e.key;
 			}
 			render();
 		};
@@ -261,7 +263,7 @@ export class TextInput extends Button {
 			render();
 		}
 		super(hitbox, draw, focus);
-		this.buffer = buffer;
+		this.buffer = settings[settingName] ?? "";
 		this.focused = false;
 		self = this;
 	}
