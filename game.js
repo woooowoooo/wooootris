@@ -84,6 +84,7 @@ const stateMachine = new StateMachine({
 				context.fillText("If this doesn't go away,", 960, 800);
 				context.fillText("refresh the page.", 960, 960);
 			}));
+			render();
 			await loadResources();
 			console.log("Resources loaded.", images, sounds);
 			objects.delete("loading");
