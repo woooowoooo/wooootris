@@ -58,7 +58,11 @@
 
 ## Multiplayer
 - [x] Peer-to-peer connection
+	- [x] Feedback
 	- [ ] Custom IDs
+	- [ ] Confirm match
+	- [ ] Disconnect
+		- [ ] Auto-disconnect
 - [ ] Gameplay
 	- [ ] Display
 	- [ ] Sync pieces

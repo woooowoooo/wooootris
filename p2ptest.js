@@ -1,5 +1,5 @@
 import "https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js";
-import {canvas, settings} from "./index.js";
+import {canvas, settings, state} from "./index.js";
 let Peer = window.Peer; // Terrible workaround for importing PeerJS
 let peer = new Peer("wooootris-" + settings.id);
 peer.on("open", () => {
@@ -18,8 +18,10 @@ peer.on("error", e => {
 export function connect(peerId) {
 	let channel = peer.connect(peerId);
 	console.log(`Connecting to ${peerId}…`);
+	state.connection = "connecting";
 	channel.on("open", () => {
 		console.log(`Connected to ${peerId}`);
+		state.connection = "connected";
 		canvas.addEventListener("click", () => channel.send("Hi"));
 	});
 }

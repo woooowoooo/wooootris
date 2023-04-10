@@ -10,9 +10,18 @@ const mouse = {
 };
 const images = {};
 const sounds = {};
-const state = { // Only an object to get around export limitations
-	state: "boot"
-};
+const state = new Proxy({ // Get around export limitations
+	state: "boot",
+	connection: null
+}, {
+	set: function (_, property, _1) {
+		const valid = Reflect.set(...arguments);
+		if (property === "connection") {
+			render();
+		}
+		return valid;
+	}
+});
 const objects = new Map();
 const defaultSettings = {
 	muted: false,

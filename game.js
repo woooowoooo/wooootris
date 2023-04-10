@@ -5,7 +5,7 @@ import {
 	Drawable, MuteButton, TextButton, TextToggle, Slider, TextInput
 } from "./index.js";
 import {newGame, onKeyDown, onKeyUp, update, render as tetrisRender} from "./tetris.js";
-import {connect} from "./p2ptest.js";
+import {connect, disconnect} from "./p2ptest.js";
 // State machine
 const stateMachine = new StateMachine({
 	init: "boot",
@@ -150,6 +150,19 @@ const stateMachine = new StateMachine({
 			objects.set("idInput", new TextInput(1200, 480, 540, "id"));
 			objects.set("otherIdInput", new TextInput(1200, 600, 540));
 			objects.set("connect", new TextButton(960, 760, "Connect", () => connect("wooootris-" + objects.get("otherIdInput").buffer), 640));
+			const feedbacks = {
+				"connecting": "Connecting...",
+				"connected": "Connected!",
+			};
+			objects.set("connectFeedback", new Drawable(() => {
+				console.log(state.connection);
+				if (state.connection != null) {
+					context.fillStyle = "white";
+					context.fontSize = 4;
+					context.textAlign = "center";
+					context.fillText(feedbacks[state.connection], 960, 920);
+				}
+			}));
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
