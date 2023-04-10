@@ -19,7 +19,8 @@ const defaultSettings = {
 	volume: 100,
 	grid: false,
 	arr: 2,
-	das: 10
+	das: 10,
+	id: Math.floor(Math.random() * 1_000_000).toString().padStart(6, "0")
 };
 const settings = new Proxy(JSON.parse(localStorage.getItem("wooootrisSettings")) ?? defaultSettings, {
 	get: function (_, property) {
@@ -228,7 +229,6 @@ export class Slider extends Drawable {
 export class TextInput extends Button {
 	constructor (x, y, width, settingName) {
 		let self; // I'm sorry
-		let buffer = settings[settingName] ?? "";
 		const hitbox = new Path2D();
 		hitbox.rect(x, y - 32, width, 64);
 		hitbox.closePath();
