@@ -31,6 +31,21 @@ const stateMachine = new StateMachine({
 			to: "multiplayer"
 		},
 		{
+			name: "connect",
+			from: "multiplayer",
+			to: "confirm"
+		},
+		{
+			name: "cancel",
+			from: "confirm",
+			to: "multiplayer"
+		},
+		{
+			name: "accept",
+			from: "confirm",
+			to: "main" // TODO: Change
+		},
+		{
 			name: "toSettings",
 			from: "menu",
 			to: "settings"
@@ -164,8 +179,22 @@ const stateMachine = new StateMachine({
 					context.fillText(feedbacks[state.connection], 960, 920);
 				}
 			}));
+			window.addEventListener("wooootris-connect", stateMachine.connect, {once: true});
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
+		},
+		onConfirm(_, e) {
+			objects.set("modal", new Drawable(() => {
+				context.fillStyle = "rgba(0, 0, 0, 0.5)";
+				context.fillRect(0, 0, 1920, 1280);
+				context.fillStyle = "white";
+				context.fontSize = 8;
+				context.textAlign = "center";
+				context.fillText(e.detail, 960, 400);
+				context.fillText("wants to play you", 960, 480);
+			}));
+			objects.set("cancel", new TextButton(672, 960, "Cancel", stateMachine.cancel, 480));
+			objects.set("confirm", new TextButton(1248, 960, "Accept", stateMachine.accept, 480));
 		},
 		onSettings() {
 			clear();

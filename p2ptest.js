@@ -6,7 +6,8 @@ peer.on("open", () => {
 	console.log(`My PeerJS ID is ${peer.id}`);
 });
 peer.on("connection", channel => {
-	console.log(`Connecting to ${channel.peer}…`);
+	console.log(`Connected to ${channel.peer}.`);
+	window.dispatchEvent(new CustomEvent("wooootris-connect", {detail: channel.peer}));
 	channel.on("data", data => {
 		console.log(data);
 		window.alert(data);
