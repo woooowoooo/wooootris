@@ -258,6 +258,7 @@ const stateMachine = new StateMachine({
 				context.fillText("piece moves when a move key is held", 960, 400);
 				context.fillText("DAS (Delayed Auto Shift) is how many", 960, 560);
 				context.fillText("frames happen before autorepeat engages", 960, 640);
+				context.fillText("2-player currently does not work", 960, 800);
 			}));
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
