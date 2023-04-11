@@ -183,6 +183,11 @@ const stateMachine = new StateMachine({
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
+		onLeaveMultiplayer() {
+			disconnect();
+			window.removeEventListener("wooootris-connect", stateMachine.connect, {once: true});
+			state.connection = null;
+		},
 		onConfirm(_, e) {
 			objects.set("modal", new Drawable(() => {
 				context.fillStyle = "rgba(0, 0, 0, 0.5)";

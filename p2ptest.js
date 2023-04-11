@@ -27,3 +27,7 @@ export function connect(peerId) {
 		canvas.addEventListener("click", () => channel.send("Hi"));
 	});
 }
+export function disconnect() {
+	console.log("Goodbye");
+	// TODO
+}
