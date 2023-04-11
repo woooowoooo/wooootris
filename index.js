@@ -95,6 +95,7 @@ export async function loadResources() {
 	}
 	for (const name of soundNames) {
 		initialize(sounds, name, `sounds/${name}.mp3`, "audio", "canplaythrough");
+		sounds[name].preload = "auto";
 		sounds[name].muted = settings.muted;
 		sounds[name].volume = settings.volume / 100;
 	}
