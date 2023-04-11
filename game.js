@@ -192,21 +192,21 @@ const stateMachine = new StateMachine({
 		onControls() {
 			clear();
 			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
+			const texts = {
+				"Move Left": "Left",
+				"Move Right": "Right",
+				"Rotate CW": "Up / X",
+				"Rotate CCW": "Z",
+				"Rotate Twice": "Left Shift",
+				"Soft Drop": "Down",
+				"Hard Drop": "Space",
+				"Hold": "C",
+				"Restart": "R",
+				"Quit": "Esc"
+			};
 			objects.set("controls", new Drawable(() => {
 				context.fillStyle = "white";
 				context.fontSize = 8;
-				const texts = {
-					"Move Left": "Left",
-					"Move Right": "Right",
-					"Rotate CW": "Up / X",
-					"Rotate CCW": "Z",
-					"Rotate Twice": "Left Shift",
-					"Soft Drop": "Down",
-					"Hard Drop": "Space",
-					"Hold": "C",
-					"Restart": "R",
-					"Quit": "Esc"
-				};
 				let textY = 200;
 				for (const [name, keybind] of Object.entries(texts)) {
 					context.textAlign = "right";
