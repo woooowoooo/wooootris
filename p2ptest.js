@@ -14,6 +14,7 @@ peer.on("connection", channel => {
 });
 peer.on("error", e => {
 	console.error(e);
+	state.connection = "error";
 });
 export function connect(peerId) {
 	let channel = peer.connect(peerId);

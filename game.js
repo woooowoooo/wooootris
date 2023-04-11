@@ -153,6 +153,7 @@ const stateMachine = new StateMachine({
 			const feedbacks = {
 				"connecting": "Connecting...",
 				"connected": "Connected!",
+				"error": "Error"
 			};
 			objects.set("connectFeedback", new Drawable(() => {
 				console.log(state.connection);
