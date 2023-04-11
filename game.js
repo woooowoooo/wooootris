@@ -5,7 +5,7 @@ import {
 	Drawable, MuteButton, TextButton, TextToggle, Slider, TextInput
 } from "./index.js";
 import {newGame, onKeyDown, onKeyUp, update, render as tetrisRender} from "./tetris.js";
-import {connect, disconnect} from "./p2ptest.js";
+import {connect, disconnect} from "./p2p.js";
 // State machine
 const stateMachine = new StateMachine({
 	init: "boot",
