@@ -1,6 +1,6 @@
 import StateMachine from "./state-machine/module.js";
 import {
-	canvas, context, images, sounds, state, objects, settings,
+	canvas, context, images, sounds, stateMachines, objects, settings,
 	clear, render, loadResources,
 	Drawable, MuteButton, TextButton, TextToggle, Slider, TextInput
 } from "./index.js";
@@ -65,7 +65,6 @@ const stateMachine = new StateMachine({
 	methods: {
 		onTransition(lifecycle) {
 			console.log(`Transition: ${lifecycle.transition}\tNew State: ${lifecycle.to}`);
-			state.state = lifecycle.to;
 		},
 		onAfterTransition() {
 			render();
@@ -153,16 +152,16 @@ const stateMachine = new StateMachine({
 			objects.set("connect", new TextButton(960, 760, "Connect", () => connect("wooootris-" + objects.get("otherIdInput").buffer), 640));
 			const feedbacks = {
 				"connecting": "Connecting...",
-				"connected": "Connected!",
-				"error": "Error"
+				"error": "Error",
+				"waiting": "Waiting for opponent..."
 			};
 			objects.set("connectFeedback", new Drawable(() => {
-				console.log(state.connection);
-				if (state.connection != null) {
+				console.log(stateMachines.connection.state);
+				if (stateMachines.connection.state !== "disconnected") {
 					context.fillStyle = "white";
 					context.fontSize = 4;
 					context.textAlign = "center";
-					context.fillText(feedbacks[state.connection], 960, 920);
+					context.fillText(feedbacks[stateMachines.connection.state], 960, 920);
 				}
 			}));
 			window.addEventListener("wooootris-connect", stateMachine.connect, {once: true});
@@ -172,7 +171,6 @@ const stateMachine = new StateMachine({
 		onLeaveMultiplayer() {
 			disconnect();
 			window.removeEventListener("wooootris-connect", stateMachine.connect, {once: true});
-			state.connection = null;
 		},
 		onConfirm(_, e) {
 			objects.set("modal", new Drawable(() => {
@@ -308,6 +306,7 @@ const stateMachine = new StateMachine({
 		}
 	}
 });
+stateMachines.main = stateMachine;
 // Main loop
 const FPS = 60;
 const FRAME_TIME = 1000 / FPS;

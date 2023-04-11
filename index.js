@@ -10,18 +10,10 @@ const mouse = {
 };
 const images = {};
 const sounds = {};
-const state = new Proxy({ // Get around export limitations
-	state: "boot",
+const stateMachines = { // Properties are specified to prevent "ambiguous indirect export" errors
+	main: null,
 	connection: null
-}, {
-	set: function (_, property, _1) {
-		const valid = Reflect.set(...arguments);
-		if (property === "connection") {
-			render();
-		}
-		return valid;
-	}
-});
+};
 const objects = new Map();
 const defaultSettings = {
 	muted: false,
@@ -112,8 +104,8 @@ class Button extends Drawable {
 		super(draw);
 		this.callback = callback;
 		this.hitbox = hitbox;
-		this.state = state.state;
-		this.fullCallback = wrapClickEvent(callback, hitbox, () => state.state === this.state);
+		this.state = stateMachines.main.state;
+		this.fullCallback = wrapClickEvent(callback, hitbox, () => stateMachines.main.state === this.state);
 	}
 	clear() {
 		canvas.removeEventListener("click", this.fullCallback);
@@ -259,7 +251,7 @@ export class TextInput extends Button {
 				}
 				window.removeEventListener("keydown", onKeyDown);
 				self.focused = false;
-				self.fullCallback = wrapClickEvent(focus, hitbox, () => state.state === self.state);
+				self.fullCallback = wrapClickEvent(focus, hitbox, () => stateMachines.main.state === self.state);
 			} else if (e.key === "Backspace") {
 				self.buffer = self.buffer.slice(0, -1);
 			} else if (e.key.length === 1) {
@@ -278,4 +270,4 @@ export class TextInput extends Button {
 		self = this;
 	}
 }
-export {canvas, context, images, sounds, state, objects, settings};
+export {canvas, context, images, sounds, stateMachines, objects, settings};

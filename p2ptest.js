@@ -1,5 +1,6 @@
 import "https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js";
-import {canvas, settings, state} from "./index.js";
+import StateMachine from "./state-machine/module.js";
+import {render, settings, stateMachines} from "./index.js";
 let Peer = window.Peer; // Terrible workaround for importing PeerJS
 let peer = new Peer("wooootris-" + settings.id);
 peer.on("open", () => {
@@ -15,19 +16,49 @@ peer.on("connection", channel => {
 });
 peer.on("error", e => {
 	console.error(e);
-	state.connection = "error";
+	stateMachine.error();
 });
 export function connect(peerId) {
 	let channel = peer.connect(peerId);
 	console.log(`Connecting to ${peerId}…`);
-	state.connection = "connecting";
+	stateMachine.connect();
 	channel.on("open", () => {
 		console.log(`Connected to ${peerId}`);
-		state.connection = "connected";
-		canvas.addEventListener("click", () => channel.send("Hi"));
+		stateMachine.success();
+		// channel.send("Hi");
 	});
 }
 export function disconnect() {
 	console.log("Goodbye");
+	stateMachine.disconnect();
 	// TODO
 }
+const stateMachine = new StateMachine({
+	init: "disconnected",
+	transitions: [{
+		name: "connect",
+		from: ["disconnected", "error"],
+		to: "connecting"
+	}, {
+		name: "disconnect",
+		from: "*",
+		to: "disconnected"
+	}, {
+		name: "success",
+		from: "connecting",
+		to: "waiting"
+	}, {
+		name: "error",
+		from: "*",
+		to: "error"
+	}],
+	methods: {
+		onTransition(lifecycle) {
+			console.log(`Connection transition: ${lifecycle.transition}\tNew State: ${lifecycle.to}`);
+		},
+		onAfterTransition() {
+			render();
+		}
+	}
+});
+stateMachines.connection = stateMachine;
