@@ -9,73 +9,59 @@ import {connect, disconnect} from "./p2ptest.js";
 // State machine
 const stateMachine = new StateMachine({
 	init: "boot",
-	transitions: [
-		{
-			name: "toMenu",
-			from: "*",
-			to: "menu"
-		},
-		{
-			name: "toSingleplayer",
-			from: "menu",
-			to: "singleplayer"
-		},
-		{
-			name: "start",
-			from: "singleplayer",
-			to: "main"
-		},
-		{
-			name: "toMultiplayer",
-			from: "menu",
-			to: "multiplayer"
-		},
-		{
-			name: "connect",
-			from: "multiplayer",
-			to: "confirm"
-		},
-		{
-			name: "cancel",
-			from: "confirm",
-			to: "multiplayer"
-		},
-		{
-			name: "accept",
-			from: "confirm",
-			to: "main" // TODO: Change
-		},
-		{
-			name: "toSettings",
-			from: "menu",
-			to: "settings"
-		},
-		{
-			name: "toControls",
-			from: "menu",
-			to: "controls"
-		},
-		{
-			name: "toHelp",
-			from: "menu",
-			to: "help"
-		},
-		{
-			name: "toCredits",
-			from: "menu",
-			to: "credits"
-		},
-		{
-			name: "lose",
-			from: "main",
-			to: "gameOver"
-		},
-		{
-			name: "retry",
-			from: "gameOver",
-			to: "main"
-		}
-	],
+	transitions: [{
+		name: "toMenu",
+		from: "*",
+		to: "menu"
+	}, {
+		name: "toSingleplayer",
+		from: "menu",
+		to: "singleplayer"
+	}, {
+		name: "start",
+		from: "singleplayer",
+		to: "main"
+	}, {
+		name: "toMultiplayer",
+		from: "menu",
+		to: "multiplayer"
+	}, {
+		name: "connect",
+		from: "multiplayer",
+		to: "confirm"
+	}, {
+		name: "cancel",
+		from: "confirm",
+		to: "multiplayer"
+	}, {
+		name: "accept",
+		from: "confirm",
+		to: "menu" // TODO: Change
+	}, {
+		name: "toSettings",
+		from: "menu",
+		to: "settings"
+	}, {
+		name: "toControls",
+		from: "menu",
+		to: "controls"
+	}, {
+		name: "toHelp",
+		from: "menu",
+		to: "help"
+	}, {
+		name: "toCredits",
+		from: "menu",
+		to: "credits"
+	}, {
+		name: "lose",
+		from: "main",
+		to: "gameOver"
+	}, {
+		name: "retry",
+		from: "gameOver",
+		to: "main"
+	}],
 	methods: {
 		onTransition(lifecycle) {
 			console.log(`Transition: ${lifecycle.transition}\tNew State: ${lifecycle.to}`);
