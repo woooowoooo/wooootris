@@ -1,8 +1,8 @@
 import "https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js";
 import StateMachine from "./state-machine/module.js";
 import {render, settings, stateMachines} from "./index.js";
-let Peer = window.Peer; // Terrible workaround for importing PeerJS
-let peer = new Peer("wooootris-" + settings.id);
+const Peer = window.Peer; // Terrible workaround for importing PeerJS
+const peer = new Peer("wooootris-" + settings.id);
 peer.on("open", () => {
 	console.log(`My PeerJS ID is ${peer.id}`);
 });
@@ -19,7 +19,7 @@ peer.on("error", e => {
 	stateMachine.error();
 });
 export function connect(peerId) {
-	let channel = peer.connect(peerId);
+	const channel = peer.connect(peerId);
 	console.log(`Connecting to ${peerId}…`);
 	stateMachine.connect();
 	channel.on("open", () => {

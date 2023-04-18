@@ -94,7 +94,7 @@ const HELD_CENTER_X = START_X - 300;
 const SCORE_START_Y = QUEUE_START_Y + 3 * CELL_SIZE + QUEUE_GAP;
 const TEXT_LINE_HEIGHT = CELL_SIZE;
 // State variables
-let highScores = new Proxy(JSON.parse(localStorage.getItem("wooootrisHighScores")) ?? {}, {
+const highScores = new Proxy(JSON.parse(localStorage.getItem("wooootrisHighScores")) ?? {}, {
 	set: function (target, property, value) {
 		console.log(`${property} has been set to ${value}`);
 		const valid = Reflect.set(...arguments);
@@ -250,7 +250,7 @@ function endGame(win) {
 		return;
 	}
 	highScores[mode] = mode === "fortyLines" ? Math.min(time, highScores[mode] ?? Infinity) : Math.max(score, highScores[mode] ?? 0);
-	let endText = {
+	const endText = {
 		default: [`Score: ${score}`, `High Score: ${highScores[mode]}`],
 		fortyLines: [`Time: ${time / 1000} seconds`, `Fastest Time: ${highScores[mode] / 1000} seconds`]
 	};

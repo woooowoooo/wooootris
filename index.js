@@ -205,8 +205,8 @@ export class Slider extends Drawable {
 		this.update = e => {
 			getMousePosition(e);
 			if (isSliding) {
-				let value = (mouse.x - x) / width * (end - start) + start;
-				let constrainedValue = Math.max(start, Math.min(end, value));
+				const value = (mouse.x - x) / width * (end - start) + start;
+				const constrainedValue = Math.max(start, Math.min(end, value));
 				settings[settingName] = intValues ? Math.round(constrainedValue) : constrainedValue;
 				if (callback != null) {
 					callback();
