@@ -6,14 +6,6 @@ const peer = new Peer("wooootris-" + settings.id);
 peer.on("open", () => {
 	console.log(`My PeerJS ID is ${peer.id}`);
 });
-peer.on("connection", channel => {
-	console.log(`Connected to ${channel.peer}.`);
-	window.dispatchEvent(new CustomEvent("wooootris-connect", {detail: channel.peer}));
-	channel.on("data", data => {
-		console.log(data);
-		window.alert(data);
-	});
-});
 peer.on("error", e => {
 	console.error(e);
 	stateMachine.error();
@@ -21,10 +13,9 @@ peer.on("error", e => {
 export function connect(peerId) {
 	const channel = peer.connect(peerId);
 	console.log(`Connecting to ${peerId}…`);
-	stateMachine.connect();
+	stateMachine.request();
 	channel.on("open", () => {
-		console.log(`Connected to ${peerId}`);
-		stateMachine.success();
+		console.log(`Can send messages to to ${peerId}`);
 		// channel.send("Hi");
 	});
 }
@@ -36,21 +27,25 @@ export function disconnect() {
 const stateMachine = new StateMachine({
 	init: "disconnected",
 	transitions: [{
-		name: "connect",
-		from: ["disconnected", "error"],
-		to: "connecting"
-	}, {
 		name: "disconnect",
 		from: "*",
 		to: "disconnected"
 	}, {
-		name: "success",
-		from: "connecting",
-		to: "waiting"
-	}, {
 		name: "error",
 		from: "*",
 		to: "error"
+	}, {
+		name: "request",
+		from: ["disconnected", "error"],
+		to: "connecting"
+	}, {
+		name: "receiveConnection",
+		from: ["disconnected", "error"],
+		to: "received"
+	}, {
+		name: "success",
+		from: "connecting",
+		to: "connected"
 	}],
 	methods: {
 		onTransition(lifecycle) {
@@ -58,7 +53,31 @@ const stateMachine = new StateMachine({
 		},
 		onAfterTransition() {
 			render();
+		},
+		onReceiveConnection(_, channel) {
+			console.log(`Connection received from ${channel.peer}.`);
+			channel.send("Hi dolt");
+			window.dispatchEvent(new CustomEvent("wooootris-connect", {detail: channel.peer}));
+			channel.on("data", data => {
+				console.log(data);
+				window.alert(data);
+			});
+			// Establish the other connection
+			const channel2 = peer.connect(channel.peer);
+			console.log(`Connecting2 to ${channel.peer}…`);
+			channel2.on("open", () => {
+				console.log(`Can send messages back to ${channel.peer}`);
+				// stateMachine.success();
+				channel.send("Hello there idiot");
+			});
 		}
+	}
+});
+peer.on("connection", e => {
+	if (stateMachine.state === "connecting") {
+		stateMachine.success();
+	} else {
+		stateMachine.receiveConnection(e);
 	}
 });
 stateMachines.connection = stateMachine;

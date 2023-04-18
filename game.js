@@ -155,10 +155,11 @@ const stateMachine = new StateMachine({
 			objects.set("otherIdInput", new TextInput(1200, 600, 540));
 			objects.set("connect", new TextButton(960, 760, "Connect", () => connect("wooootris-" + objects.get("otherIdInput").buffer), 640));
 			const feedbacks = {
+				"connected": "Connected",
 				"connecting": "Connecting...",
 				"decline": "Opponent declined",
 				"error": "Error",
-				"waiting": "Waiting for opponent..."
+				"received": "Connection received"
 			};
 			objects.set("connectFeedback", new Drawable(() => {
 				if (stateMachines.connection.state !== "disconnected") {
