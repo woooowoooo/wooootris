@@ -156,6 +156,7 @@ const stateMachine = new StateMachine({
 			objects.set("connect", new TextButton(960, 760, "Connect", () => connect("wooootris-" + objects.get("otherIdInput").buffer), 640));
 			const feedbacks = {
 				"connecting": "Connecting...",
+				"decline": "Opponent declined",
 				"error": "Error",
 				"waiting": "Waiting for opponent..."
 			};
@@ -185,8 +186,8 @@ const stateMachine = new StateMachine({
 				context.fillText(e.detail, 960, 400);
 				context.fillText("wants to play you", 960, 480);
 			}));
-			objects.set("cancel", new TextButton(672, 960, "Cancel", stateMachine.cancel, 480));
-			objects.set("confirm", new TextButton(1248, 960, "Accept", stateMachine.accept, 480));
+			objects.set("decline", new TextButton(560, 880, "Decline", stateMachine.cancel, 640));
+			objects.set("accept", new TextButton(1380, 880, "Accept", stateMachine.accept, 640));
 		},
 		onSettings() {
 			clear();
@@ -299,8 +300,8 @@ const stateMachine = new StateMachine({
 					textY += 100;
 				}
 			}));
-			objects.set("menu", new TextButton(672, 960, "Menu", stateMachine.toMenu, 480));
-			objects.set("retry", new TextButton(1248, 960, "Retry", stateMachine.retry, 480));
+			objects.set("menu", new TextButton(672, 880, "Menu", stateMachine.toMenu, 480));
+			objects.set("retry", new TextButton(1248, 880, "Retry", stateMachine.retry, 480));
 		},
 		onLeaveGameOver() {
 			for (const sound of Object.values(sounds).filter(sound => sound.paused)) {
