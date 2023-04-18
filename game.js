@@ -26,6 +26,10 @@ const stateMachine = new StateMachine({
 		from: "menu",
 		to: "multiplayer"
 	}, {
+		name: "multiplayerToMenu",
+		from: "multiplayer",
+		to: "menu"
+	}, {
 		name: "connect",
 		from: "multiplayer",
 		to: "confirm"
@@ -156,7 +160,6 @@ const stateMachine = new StateMachine({
 				"waiting": "Waiting for opponent..."
 			};
 			objects.set("connectFeedback", new Drawable(() => {
-				console.log(stateMachines.connection.state);
 				if (stateMachines.connection.state !== "disconnected") {
 					context.fillStyle = "white";
 					context.fontSize = 4;
@@ -165,10 +168,10 @@ const stateMachine = new StateMachine({
 				}
 			}));
 			window.addEventListener("wooootris-connect", stateMachine.connect, {once: true});
-			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
+			objects.set("return", new TextButton(960, 960, "Return", stateMachine.multiplayerToMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
-		onLeaveMultiplayer() {
+		onMultiplayerToMenu() {
 			disconnect();
 			window.removeEventListener("wooootris-connect", stateMachine.connect, {once: true});
 		},
