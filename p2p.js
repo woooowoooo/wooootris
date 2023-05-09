@@ -54,19 +54,18 @@ const stateMachine = new StateMachine({
 		onAfterTransition() {
 			render();
 		},
-		onReceiveConnection(_, channel) {
-			console.log(`Connection received from ${channel.peer}.`);
-			channel.send("Hi dolt");
-			window.dispatchEvent(new CustomEvent("wooootris-connect", {detail: channel.peer}));
+		onReceiveConnection(_, receivedChannel) {
+			console.log(`Connection received from ${receivedChannel.peer}.`);
+			window.dispatchEvent(new CustomEvent("wooootris-connect", {detail: receivedChannel.peer}));
+			// Establish the other connection
+			const channel = peer.connect(receivedChannel.peer);
+			console.log(`Connecting2 to ${receivedChannel.peer}…`);
 			channel.on("data", data => {
 				console.log(data);
 				window.alert(data);
 			});
-			// Establish the other connection
-			const channel2 = peer.connect(channel.peer);
-			console.log(`Connecting2 to ${channel.peer}…`);
-			channel2.on("open", () => {
-				console.log(`Can send messages back to ${channel.peer}`);
+			channel.on("open", () => {
+				console.log(`Can send messages back to ${receivedChannel.peer}`);
 				// stateMachine.success();
 				channel.send("Hello there idiot");
 			});
