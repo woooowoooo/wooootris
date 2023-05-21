@@ -14,33 +14,33 @@ const stateMachine = new StateMachine({
 		from: "*",
 		to: "menu"
 	}, {
-		name: "toSingleplayer",
+		name: "to1PMenu",
 		from: "menu",
-		to: "singleplayer"
+		to: "singleplayerMenu"
 	}, {
 		name: "start",
-		from: "singleplayer",
-		to: "main"
+		from: "singleplayerMenu",
+		to: "singleplayer"
 	}, {
-		name: "toMultiplayer",
+		name: "to2PMenu",
 		from: "menu",
-		to: "multiplayer"
+		to: "multiplayerMenu"
 	}, {
 		name: "multiplayerToMenu",
-		from: "multiplayer",
+		from: "multiplayerMenu",
 		to: "menu"
 	}, {
 		name: "connect",
-		from: "multiplayer",
+		from: "multiplayerMenu",
 		to: "confirm"
 	}, {
 		name: "cancel",
 		from: "confirm",
-		to: "multiplayer"
+		to: "multiplayerMenu"
 	}, {
 		name: "accept",
 		from: "confirm",
-		to: "menu" // TODO: Change
+		to: "multiplayer"
 	}, {
 		name: "toSettings",
 		from: "menu",
@@ -59,12 +59,12 @@ const stateMachine = new StateMachine({
 		to: "credits"
 	}, {
 		name: "lose",
-		from: "main",
+		from: ["singleplayer", "multiplayer"],
 		to: "gameOver"
 	}, {
 		name: "retry",
 		from: "gameOver",
-		to: "main"
+		to: "singleplayer" // TODO: multiplayer
 	}],
 	methods: {
 		onTransition(lifecycle) {
@@ -112,15 +112,15 @@ const stateMachine = new StateMachine({
 				context.fontSize = 20;
 				context.fillText("wooootris", 960, 400);
 			}));
-			objects.set("singleplayer", new TextButton(560, 640, "1-player", stateMachine.toSingleplayer, 640));
-			objects.set("multiplayer", new TextButton(1360, 640, "2-player", stateMachine.toMultiplayer, 640));
+			objects.set("singleplayer", new TextButton(560, 640, "1-player", stateMachine.to1PMenu, 640));
+			objects.set("multiplayer", new TextButton(1360, 640, "2-player", stateMachine.to2PMenu, 640));
 			objects.set("settings", new TextButton(560, 800, "Settings", stateMachine.toSettings, 640));
 			objects.set("controls", new TextButton(1360, 800, "Controls", stateMachine.toControls, 640));
 			objects.set("help", new TextButton(560, 960, "Help", stateMachine.toHelp, 640));
 			objects.set("credits", new TextButton(1360, 960, "Credits", stateMachine.toCredits, 640));
 			objects.set("mute", new MuteButton());
 		},
-		onSingleplayer() {
+		onSingleplayerMenu() {
 			clear();
 			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
 			objects.set("title", new Drawable(() => {
@@ -133,7 +133,7 @@ const stateMachine = new StateMachine({
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
-		onMultiplayer() {
+		onMultiplayerMenu() {
 			clear();
 			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
 			objects.set("title", new Drawable(() => {
@@ -189,6 +189,12 @@ const stateMachine = new StateMachine({
 			}));
 			objects.set("decline", new TextButton(560, 880, "Decline", stateMachine.cancel, 640));
 			objects.set("accept", new TextButton(1380, 880, "Accept", stateMachine.accept, 640));
+		},
+		onMultiplayer() {
+			clear();
+			objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
+			objects.set("mute", new MuteButton());
+			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 		},
 		onSettings() {
 			clear();
@@ -271,7 +277,7 @@ const stateMachine = new StateMachine({
 			objects.set("return", new TextButton(960, 960, "Return", stateMachine.toMenu, 640));
 			objects.set("mute", new MuteButton());
 		},
-		onMain(_, newMode) {
+		onSingleplayer(_, newMode) {
 			clear();
 			newGame(newMode);
 			window.addEventListener("keydown", onKeyDown);
@@ -325,7 +331,7 @@ function loop(time) {
 	lastTime = time - (time % FRAME_TIME);
 	frames++;
 	// Break on game loss
-	if (!stateMachine.is("main")) {
+	if (!stateMachine.is("singleplayer") && !stateMachine.is("multiplayer")) {
 		return;
 	}
 	// Handling is done in tetris.js
