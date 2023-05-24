@@ -46,34 +46,40 @@ const stateMachine = new StateMachine({
 			console.log(`Connecting to ${peerId}…`);
 			channel.on("open", () => {
 				console.log(`Can send messages to to ${peerId}`);
-				// channel.send("Hi");
+				channel.send("Hi");
 			});
 		},
 		onReceiveConnection(_, receivedChannel) {
 			console.log(`Connection received from ${receivedChannel.peer}.`);
 			window.dispatchEvent(new CustomEvent("wooootris-connect", {detail: receivedChannel.peer}));
-			// Establish the other connection
-			const channel = peer.connect(receivedChannel.peer);
-			console.log(`Connecting2 to ${receivedChannel.peer}…`);
-			channel.on("data", data => {
+			receivedChannel.on("data", data => {
 				console.log(data);
 				window.alert(data);
 			});
+			// Establish the other connection
+			const channel = peer.connect(receivedChannel.peer);
+			console.log(`Connecting2 to ${receivedChannel.peer}…`);
 			channel.on("open", () => {
 				console.log(`Can send messages back to ${receivedChannel.peer}`);
 				// stateMachine.success();
 				channel.send("Hello there idiot");
+			});
+		},
+		onSuccess(_, receivedChannel) {
+			receivedChannel.on("data", data => {
+				console.log(data);
+				window.alert(data);
 			});
 		}
 	}
 });
 // Handle events
 peer.on("open", () => console.log(`My PeerJS ID is ${peer.id}`));
-peer.on("connection", e => {
+peer.on("connection", channel => {
 	if (stateMachine.state === "connecting") {
-		stateMachine.success();
+		stateMachine.success(channel);
 	} else {
-		stateMachine.receiveConnection(e);
+		stateMachine.receiveConnection(channel);
 	}
 });
 peer.on("error", stateMachine.error);
