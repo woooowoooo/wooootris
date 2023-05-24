@@ -11,7 +11,8 @@ const stateMachine = new StateMachine({
 	init: "boot",
 	transitions: [{
 		name: "toMenu",
-		from: "*",
+		// Visualization is neater with explicit states instead of *
+		from: ["boot", "singleplayerMenu", "multiplayerMenu", "settings", "controls", "help", "credits", "gameOver"],
 		to: "menu"
 	}, {
 		name: "to1PMenu",

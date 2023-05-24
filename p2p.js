@@ -28,11 +28,11 @@ const stateMachine = new StateMachine({
 	init: "disconnected",
 	transitions: [{
 		name: "disconnect",
-		from: "*",
+		from: ["error", "connecting", "received", "connected"],
 		to: "disconnected"
 	}, {
 		name: "error",
-		from: "*",
+		from: ["connecting", "received", "connected"],
 		to: "error"
 	}, {
 		name: "request",
