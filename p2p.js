@@ -7,7 +7,7 @@ const stateMachine = new StateMachine({
 	init: "disconnected",
 	transitions: [{
 		name: "disconnect",
-		from: ["error", "connecting", "received", "connected"],
+		from: ["disconnected", "error", "connecting", "received", "connected", "inGame"],
 		to: "disconnected"
 	}, {
 		name: "error",
