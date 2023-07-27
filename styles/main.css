@@ -41,8 +41,8 @@ p {
 }
 @font-face {
 	font-family: "Commodore 64";
-	src: url("fonts/commodore64.woff2") format("woff2"),
-	url("fonts/commodore64.woff") format("woff");
+	src: url("../fonts/commodore64.woff2") format("woff2"),
+	url("../fonts/commodore64.woff") format("woff");
 }
 @media (prefers-color-scheme: dark) {
 	:root {

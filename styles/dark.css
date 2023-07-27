@@ -1,0 +1,6 @@
+body {
+	background-color: var(--primary-color);
+}
+header {
+	background-color: var(--secondary-color);
+}
