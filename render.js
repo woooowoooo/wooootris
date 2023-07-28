@@ -1,7 +1,7 @@
 import {context, settings} from "./index.js";
 import {
 	ROWS, TCOLS, COLS, MID, CELL_AMOUNT, NEXT_AMOUNT, BLOCKS,
-	highScores
+	getInfo
 } from "./tetris.js";
 // Colors (Done with https://css.land/lch)
 const COLORS = {
@@ -37,12 +37,6 @@ let cells = Array(CELL_AMOUNT).fill(" ");
 let queue = Array(7);
 let held = null;
 let changed = true;
-// Scoring
-let time = 0;
-let score = 0;
-let totalLines = 0;
-let combo = 0;
-let hardMove = false;
 // Functions
 function displayPiece(context, type, x, y) {
 	x -= CELL_SIZE * (type === "I" || type === "O" ? 1 : 0.5);
@@ -94,26 +88,13 @@ export function render() {
 	context.fontSize = 5;
 	context.textAlign = "right";
 	context.fillStyle = "white";
-	const texts = {
-		Score: score,
-		HScore: (highScores[mode] ?? "None"),
-		Lines: totalLines,
-		Combo: combo,
-		B2B: hardMove
-	};
-	const fortyLineTexts = {
-		Time: (time / 1000).toFixed(3) + "s",
-		FTime: (highScores[mode] != null) ? ((highScores[mode] / 1000).toFixed(3) + "s") : "None",
-		Lines: `${totalLines} / 40`,
-		Combo: combo,
-		B2B: hardMove
-	};
 	let textY = SCORE_START_Y;
-	for (const [key, value] of Object.entries(mode === "default" ? texts : fortyLineTexts)) {
+	for (const [key, value] of Object.entries(getInfo())) {
 		context.fillText(key, HELD_CENTER_X + 4 * CELL_SIZE - (mode === "default" ? 320 : 360), textY);
 		context.fillText(value, HELD_CENTER_X + 4 * CELL_SIZE, textY);
 		textY += TEXT_LINE_HEIGHT;
 	}
+	// Draw ephemeral text
 	if (moveText != null) {
 		context.fillStyle = `hsla(0, 0%, 100%, ${Math.min(1, 2 * moveTextTimer / MOVE_TEXT_DURATION)})`;
 		context.fillText(moveText, HELD_CENTER_X + 4 * CELL_SIZE, textY);

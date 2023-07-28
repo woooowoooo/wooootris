@@ -381,3 +381,22 @@ export function update() {
 	}
 	return [mode === "fortyLines" ? true : changed, endGameText];
 }
+export function getInfo() {
+	if (mode === "default") {
+		return {
+			Score: score,
+			HScore: (highScores[mode] ?? "None"),
+			Lines: totalLines,
+			Combo: combo,
+			B2B: hardMove
+		};
+	} else { // Forty lines
+		return {
+			Time: (time / 1000).toFixed(3) + "s",
+			FTime: (highScores[mode] != null) ? ((highScores[mode] / 1000).toFixed(3) + "s") : "None",
+			Lines: `${totalLines} / 40`,
+			Combo: combo,
+			B2B: hardMove
+		};
+	}
+}
