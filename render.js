@@ -1,7 +1,7 @@
 import {context, settings} from "./index.js";
 import {
 	ROWS, TCOLS, COLS, MID, CELL_AMOUNT, NEXT_AMOUNT, BLOCKS,
-	getInfo
+	game, getInfo
 } from "./tetris.js";
 // Colors (Done with https://css.land/lch)
 const COLORS = {
@@ -31,12 +31,6 @@ const TEXT_LINE_HEIGHT = CELL_SIZE;
 let moveText = null;
 let moveTextTimer = 0;
 const MOVE_TEXT_DURATION = 60;
-// State variables
-let mode = null;
-let cells = Array(CELL_AMOUNT).fill(" ");
-let queue = Array(7);
-let held = null;
-let changed = true;
 // Functions
 function displayPiece(context, type, x, y) {
 	x -= CELL_SIZE * (type === "I" || type === "O" ? 1 : 0.5);
@@ -47,7 +41,7 @@ function displayPiece(context, type, x, y) {
 	}
 }
 export function render() {
-	changed = false;
+	game.changed = false;
 	// Draw outlines
 	context.fillStyle = "white";
 	context.fillRect(START_X - OUTLINE_WIDTH, START_Y - OUTLINE_WIDTH, TCOLS * CELL_SIZE + 2 * OUTLINE_WIDTH, ROWS * CELL_SIZE + 2 * OUTLINE_WIDTH);
@@ -70,19 +64,19 @@ export function render() {
 		}
 	}
 	// Fill cells
-	for (const [position, cell] of cells.entries()) {
+	for (const [position, cell] of game.cells.entries()) {
 		if (cell !== " ") {
 			context.fillStyle = COLORS[cell];
 			context.fillRect(START_X + (position % COLS - 1) * CELL_SIZE, START_Y + Math.floor(position / COLS - 2) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 		}
 	}
 	// Draw queue
-	for (const [position, tetromino] of Array.from(queue.entries()).slice(0, NEXT_AMOUNT)) {
+	for (const [position, tetromino] of Array.from(game.queue.entries()).slice(0, NEXT_AMOUNT)) {
 		displayPiece(context, tetromino, QUEUE_CENTER_X, QUEUE_START_Y + QUEUE_GAP * position);
 	}
 	// Draw held piece
-	if (held != null) {
-		displayPiece(context, held, HELD_CENTER_X, QUEUE_START_Y + CELL_SIZE);
+	if (game.held != null) {
+		displayPiece(context, game.held, HELD_CENTER_X, QUEUE_START_Y + CELL_SIZE);
 	}
 	// Draw info
 	context.fontSize = 5;
@@ -90,7 +84,7 @@ export function render() {
 	context.fillStyle = "white";
 	let textY = SCORE_START_Y;
 	for (const [key, value] of Object.entries(getInfo())) {
-		context.fillText(key, HELD_CENTER_X + 4 * CELL_SIZE - (mode === "default" ? 320 : 360), textY);
+		context.fillText(key, HELD_CENTER_X + 4 * CELL_SIZE - (game.mode === "default" ? 320 : 360), textY);
 		context.fillText(value, HELD_CENTER_X + 4 * CELL_SIZE, textY);
 		textY += TEXT_LINE_HEIGHT;
 	}
