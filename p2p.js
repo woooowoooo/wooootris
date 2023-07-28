@@ -11,7 +11,7 @@ const stateMachine = new StateMachine({
 		to: "disconnected"
 	}, {
 		name: "error",
-		from: ["connecting", "received", "connected"],
+		from: ["disconnected", "error", "connecting", "received", "connected", "inGame"],
 		to: "error"
 	}, {
 		name: "request",
