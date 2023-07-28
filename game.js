@@ -4,7 +4,8 @@ import {
 	clear, render, loadResources,
 	Drawable, MuteButton, TextButton, TextToggle, Slider, TextInput
 } from "./index.js";
-import {newGame, onKeyDown, onKeyUp, update, render as tetrisRender} from "./tetris.js";
+import {newGame, onKeyDown, onKeyUp, update} from "./tetris.js";
+import {render as tetrisRender} from "./render.js";
 import {connect, disconnect} from "./p2p.js";
 // State machine
 const stateMachine = new StateMachine({
